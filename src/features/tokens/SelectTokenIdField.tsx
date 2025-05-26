@@ -84,7 +84,7 @@ export function SelectTokenIdModal({
           tokenIds.map((id) => (
             <button
               key={id}
-              className="flex items-center rounded px-2 py-1.5 text-sm transition-all duration-200 hover:bg-gray-100 active:bg-gray-200"
+              className="flex items-center rounded px-2 py-1.5 text-sm transition-all duration-200"
               onClick={onSelectTokenId(id)}
             >
               <span className="ml-2">{id}</span>
@@ -102,6 +102,6 @@ export function SelectTokenIdModal({
 
 const styles = {
   base: 'mt-1.5 w-full px-2.5 py-2 flex items-center justify-between text-sm bg-white rounded border border-gray-400 outline-none transition-colors duration-500',
-  enabled: 'hover:bg-gray-50 active:bg-gray-100 focus:border-primary-500',
-  disabled: 'bg-gray-150 cursor-default',
+  enabled: '',
+  disabled: 'cursor-default',
 };

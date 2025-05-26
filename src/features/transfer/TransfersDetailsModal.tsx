@@ -4,7 +4,6 @@ import {
   MessageStatus,
   MessageTimeline,
   Modal,
-  SpinnerIcon,
   useAccountForChain,
   useMessageTimeline,
   useTimeout,
@@ -16,12 +15,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChainLogo } from '../../components/icons/ChainLogo';
 import { TokenIcon } from '../../components/icons/TokenIcon';
 import LinkIcon from '../../images/icons/external-link-icon.svg';
+import tokenTransfer from '../../images/icons/token-select-icon.svg';
 import { Color } from '../../styles/Color';
 import { formatTimestamp } from '../../utils/date';
 import { getHypExplorerLink } from '../../utils/links';
 import { logger } from '../../utils/logger';
 import { useMultiProvider } from '../chains/hooks';
-import { getChainDisplayName, hasPermissionlessChain } from '../chains/utils';
+import { hasPermissionlessChain } from '../chains/utils';
 import { tryFindToken, useWarpCore } from '../tokens/hooks';
 import { TransferContext, TransferStatus } from './types';
 import {
@@ -111,7 +111,12 @@ export function TransfersDetailsModal({
   const explorerLink = getHypExplorerLink(multiProvider, origin, msgId);
 
   return (
-    <Modal isOpen={isOpen} close={onClose} panelClassname="p-4 md:p-5 max-w-sm">
+    <Modal
+      isOpen={isOpen}
+      dialogClassname="dialog-container"
+      close={onClose}
+      panelClassname="p-4 md:p-5 max-w-sm modal-conainer"
+    >
       {isFinal && (
         <div className="flex justify-between">
           <h2 className="font-medium text-gray-600">{date}</h2>
@@ -132,36 +137,33 @@ export function TransfersDetailsModal({
         </div>
       )}
 
-      <div className="mt-4 flex w-full items-center justify-center rounded-full bg-primary-200 p-3">
-        <TokenIcon token={token} size={30} />
-        <div className="items ml-2 flex items-baseline">
-          <span className="text-xl font-medium">{amount}</span>
-          <span className="ml-1 text-xl font-medium">{token?.symbol}</span>
+      <div className="flex w-full items-center justify-center p-3">
+        <TokenIcon token={token} size={48} />
+        <div className="items ml-2 flex items-baseline text-[36px] font-[500] text-white">
+          <span>{amount}</span>
+          <span className="ml-1">{token?.symbol}</span>
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-around">
-        <div className="ml-2 flex flex-col items-center">
-          <ChainLogo chainName={origin} size={64} background={true} />
-          <span className="mt-1 font-medium tracking-wider">
-            {getChainDisplayName(multiProvider, origin, true)}
-          </span>
-        </div>
-        <div className="mb-6 flex sm:space-x-1.5">
-          <WideChevron />
-          <WideChevron />
-        </div>
+      <div className="mt-4 flex items-center justify-center">
         <div className="mr-2 flex flex-col items-center">
-          <ChainLogo chainName={destination} size={64} background={true} />
-          <span className="mt-1 font-medium tracking-wider">
-            {getChainDisplayName(multiProvider, destination, true)}
-          </span>
+          <div className="rounded-full p-[2px]" style={{ border: '2px solid #707997' }}>
+            <ChainLogo chainName={origin} size={40} />
+          </div>
+        </div>
+        <div className="flex">
+          <Image src={tokenTransfer} width={100} alt="Token transfer icon" />
+        </div>
+        <div className="ml-2 flex flex-col items-center">
+          <div className="rounded-full p-[2px]" style={{ border: '2px solid #707997' }}>
+            <ChainLogo chainName={destination} size={40} />
+          </div>
         </div>
       </div>
 
       {isFinal ? (
-        <div className="mt-5 flex flex-col space-y-4">
-          <TransferProperty name="Sender Address" value={sender} url={fromUrl} />
+        <div className="mt-5 flex flex-col space-y-4 rounded-[24px] bg-[#DBE2FA08] p-4">
+          <TransferProperty name="Sender Address" value={sender.slice} url={fromUrl} />
           <TransferProperty name="Recipient Address" value={recipient} url={toUrl} />
           {token?.addressOrDenom && (
             <TransferProperty name="Token Address or Denom" value={token.addressOrDenom} />
@@ -191,9 +193,8 @@ export function TransfersDetailsModal({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-4">
-          <SpinnerIcon width={60} height={60} className="mt-3" />
           <div
-            className={`mt-5 text-center text-sm ${isFailed ? 'text-red-600' : 'text-gray-600'}`}
+            className={`mt-5 text-center text-[24px] font-[500] ${isFailed ? 'text-red-600' : 'text-[#707997]'}`}
           >
             {statusDescription}
           </div>
@@ -242,17 +243,25 @@ function TransferProperty({ name, value, url }: { name: string; value: string; u
   return (
     <div>
       <div className="flex items-center justify-between">
-        <label className="text-sm leading-normal tracking-wider text-gray-350">{name}</label>
+        <label className="text-sm leading-normal tracking-wider text-[#707997]">{name}</label>
         <div className="flex items-center space-x-2">
+          <div className="mt-1 truncate text-sm leading-normal tracking-wider text-white">
+            {value.length > 10 ? `${value.slice(0, 4)}...${value.slice(-4)}` : value}
+          </div>
           {url && (
             <a href={url} target="_blank" rel="noopener noreferrer">
               <Image src={LinkIcon} width={14} height={14} alt="" />
             </a>
           )}
-          <CopyButton copyValue={value} width={14} height={14} className="opacity-40" />
+          <CopyButton
+            copyValue={value}
+            width={14}
+            height={14}
+            className="opacity-40"
+            color="white"
+          />
         </div>
       </div>
-      <div className="mt-1 truncate text-sm leading-normal tracking-wider">{value}</div>
     </div>
   );
 }

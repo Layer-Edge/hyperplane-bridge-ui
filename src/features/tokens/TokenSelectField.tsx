@@ -98,19 +98,19 @@ function TokenButton({
       className={`${styles.base} ${disabled ? styles.disabled : styles.enabled}`}
       onClick={onClick}
     >
-      <div className="flex items-center">
+      <div className="flex items-center text-[18px] font-[500] text-white">
         {token && <TokenIcon token={token} size={20} />}
-        <span className={`ml-2 ${!token?.symbol && 'text-slate-400'}`}>
+        <span className={`ml-2 ${!token?.symbol && 'text-[12px] text-slate-400'}`}>
           {token?.symbol || (isAutomatic ? 'No routes available' : 'Select Token')}
         </span>
       </div>
-      <ChevronIcon width={12} height={8} direction="s" />
+      <ChevronIcon width={12} height={8} direction="s" color="#DBE2FA" />
     </button>
   );
 }
 
 const styles = {
-  base: 'mt-1.5 w-full px-2.5 py-2.5 flex items-center justify-between text-sm rounded-lg border border-primary-300 outline-none transition-colors duration-500',
-  enabled: 'hover:bg-gray-100 active:scale-95 focus:border-primary-500',
-  disabled: 'bg-gray-100 cursor-default',
+  base: 'bg-[#DBE2FA08] mt-1.5 w-full px-[16px] py-[16px] flex items-center justify-between text-sm rounded-[24px] outline-none transition-colors duration-500',
+  enabled: 'active:scale-95 focus:border-primary-500',
+  disabled: 'cursor-default',
 };
