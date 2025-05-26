@@ -20,7 +20,7 @@ export function ChainSelectListModal({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
-  const { chainMetadata, chainMetadataOverrides, setChainMetadataOverrides } = useStore((s) => ({
+  const { chainMetadata, chainMetadataOverrides } = useStore((s) => ({
     chainMetadata: s.chainMetadata,
     chainMetadataOverrides: s.chainMetadataOverrides,
     setChainMetadataOverrides: s.setChainMetadataOverrides,

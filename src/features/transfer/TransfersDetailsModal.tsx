@@ -8,7 +8,6 @@ import {
   useMessageTimeline,
   useTimeout,
   useWalletDetails,
-  WideChevronIcon,
 } from '@hyperlane-xyz/widgets';
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -16,7 +15,7 @@ import { ChainLogo } from '../../components/icons/ChainLogo';
 import { TokenIcon } from '../../components/icons/TokenIcon';
 import LinkIcon from '../../images/icons/external-link-icon.svg';
 import tokenTransfer from '../../images/icons/token-select-icon.svg';
-import { Color } from '../../styles/Color';
+// import { Color } from '../../styles/Color';
 import { formatTimestamp } from '../../utils/date';
 import { getHypExplorerLink } from '../../utils/links';
 import { logger } from '../../utils/logger';
@@ -163,7 +162,7 @@ export function TransfersDetailsModal({
 
       {isFinal ? (
         <div className="mt-5 flex flex-col space-y-4 rounded-[24px] bg-[#DBE2FA08] p-4">
-          <TransferProperty name="Sender Address" value={sender.slice} url={fromUrl} />
+          <TransferProperty name="Sender Address" value={sender} url={fromUrl} />
           <TransferProperty name="Recipient Address" value={recipient} url={toUrl} />
           {token?.addressOrDenom && (
             <TransferProperty name="Token Address or Denom" value={token.addressOrDenom} />
@@ -266,17 +265,17 @@ function TransferProperty({ name, value, url }: { name: string; value: string; u
   );
 }
 
-function WideChevron() {
-  return (
-    <WideChevronIcon
-      width="16"
-      height="100%"
-      direction="e"
-      color={Color.gray['300']}
-      rounded={true}
-    />
-  );
-}
+// function WideChevron() {
+//   return (
+//     <WideChevronIcon
+//       width="16"
+//       height="100%"
+//       direction="e"
+//       color={Color.gray['300']}
+//       rounded={true}
+//     />
+//   );
+// }
 
 // https://github.com/wagmi-dev/wagmi/discussions/2928
 function useSignIssueWarning(status: TransferStatus) {

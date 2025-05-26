@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TokenIcon } from '../../components/icons/TokenIcon';
 import { TextInput } from '../../components/input/TextField';
 import { config } from '../../consts/config';
-import { useMultiProvider } from '../chains/hooks';
+// import { useMultiProvider } from '../chains/hooks';
 import { useStore } from '../store';
 import { useWarpCore } from './hooks';
 import { TokenChainMap } from './utils';
@@ -75,7 +75,7 @@ function SearchBar({ search, setSearch }: { search: string; setSearch: (s: strin
         width={20}
         height={20}
         color="#707997"
-        className="absolute left-5 top-1/2 -translate-y-1/2 pb-1 opacity-50"
+        className="absolute pb-1 -translate-y-1/2 opacity-50 left-5 top-1/2"
       />
       <TextInput
         ref={inputRef}
@@ -103,7 +103,7 @@ export function TokenList({
   onSelect: (token: IToken) => void;
   onSelectUnsupportedRoute: (token: Token, origin: string) => void;
 }) {
-  const multiProvider = useMultiProvider();
+  // const multiProvider = useMultiProvider();
   const warpCore = useWarpCore();
   const tokensBySymbolChainMap = useStore((s) => s.tokensBySymbolChainMap);
 
