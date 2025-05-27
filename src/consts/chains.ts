@@ -8,7 +8,8 @@ import {
   soon,
   soonAddresses,
 } from '@hyperlane-xyz/registry';
-import { ChainMap, ChainMetadata } from '@hyperlane-xyz/sdk';
+import { ChainMap, ChainMetadata, ExplorerFamily } from '@hyperlane-xyz/sdk';
+import { Address, ProtocolType } from '@hyperlane-xyz/utils';
 
 // A map of chain names to ChainMetadata
 // Chains can be defined here, in chains.json, or in chains.yaml
@@ -31,6 +32,54 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address }> = {
   sonicsvm: {
     ...sonicsvm,
     mailbox: sonicsvmAddresses.mailbox,
+  },
+  basesepolia: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 84532,
+    domainId: 84532,
+    name: 'basesepolia',
+    displayName: 'Base Sepolia',
+    nativeToken: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: [{ http: 'https://sepolia.base.org' }],
+    blockExplorers: [
+      {
+        name: 'BaseScan',
+        url: 'https://sepolia.basescan.org',
+        apiUrl: 'https://api-sepolia.basescan.org/api',
+        family: ExplorerFamily.Etherscan,
+      },
+    ],
+    blocks: {
+      confirmations: 1,
+      reorgPeriod: 1,
+      estimateBlockTime: 2,
+    },
+    mailbox: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
+    logoURI: '/base-logo.svg',
+  },
+  bsctestnet: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 97,
+    domainId: 97,
+    name: 'bsctestnet',
+    displayName: 'BSC Testnet',
+    nativeToken: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+    rpcUrls: [{ http: 'https://data-seed-prebsc-1-s1.binance.org:8545' }],
+    blockExplorers: [
+      {
+        name: 'BscScan',
+        url: 'https://testnet.bscscan.com',
+        apiUrl: 'https://api-testnet.bscscan.com/api',
+        family: ExplorerFamily.Etherscan,
+      },
+    ],
+    blocks: {
+      confirmations: 1,
+      reorgPeriod: 9,
+      estimateBlockTime: 3,
+    },
+    mailbox: '0xF9F6F5646F478d5ab4e20B0F910C92F1CCC9Cc6D',
+    logoURI: '/bsc-logo.svg',
   },
   // mycustomchain: {
   //   protocol: ProtocolType.Ethereum,

@@ -31,16 +31,13 @@ export function ChainSelectListModal({
       mergedMetadata,
     };
   }, [chainMetadata, chainMetadataOverrides]);
-  const mainnetNetworks = Object.fromEntries(
-    Object.entries(mergedMetadata).filter(([key]) => mergedMetadata[key].isTestnet !== true),
-  );
   const queryFormatted = query.trim().toLowerCase();
   const filteredObj = Object.fromEntries(
-    Object.entries(mainnetNetworks).filter(
+    Object.entries(mergedMetadata).filter(
       ([key]) =>
-        mainnetNetworks[key].name.includes(queryFormatted) ||
-        mainnetNetworks[key].displayName?.toLowerCase().includes(queryFormatted) ||
-        mainnetNetworks[key].chainId.toString().includes(queryFormatted),
+        mergedMetadata[key].name.includes(queryFormatted) ||
+        mergedMetadata[key].displayName?.toLowerCase().includes(queryFormatted) ||
+        mergedMetadata[key].chainId.toString().includes(queryFormatted),
     ),
   );
   const onSelectChain = (chain: ChainMetadata) => {

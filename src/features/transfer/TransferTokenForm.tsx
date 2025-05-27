@@ -4,6 +4,7 @@ import {
   AccountInfo,
   HistoryIcon,
   IconButton,
+  Modal,
   SpinnerIcon,
   WalletIcon,
   getAccountAddressAndPubKey,
@@ -15,13 +16,13 @@ import BigNumber from 'bignumber.js';
 import { Form, Formik, useFormikContext } from 'formik';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
 import { ConnectAwareSubmitButton } from '../../components/buttons/ConnectAwareSubmitButton';
 import { SolidButton } from '../../components/buttons/SolidButton';
 import { TextField } from '../../components/input/TextField';
 import { WARP_QUERY_PARAMS } from '../../consts/args';
 import { chainsRentEstimate } from '../../consts/chains';
 import { config } from '../../consts/config';
+import editIcon from '../../images/icons/edit-icon.svg';
 import tokenTransferIcon from '../../images/icons/swapIcon.svg';
 import { logger } from '../../utils/logger';
 import { getQueryParams, updateQueryParam } from '../../utils/queryParams';
@@ -67,7 +68,6 @@ export function TransferTokenForm() {
     setIsSideBarOpen: s.setIsSideBarOpen,
     isSideBarOpen: s.isSideBarOpen,
   }));
-
   // Flag for if form is in input vs review mode
   const [isReview, setIsReview] = useState(false);
   // Flag for check current type of token
@@ -107,8 +107,8 @@ export function TransferTokenForm() {
       validateOnBlur={false}
     >
       {({ isValidating }) => (
-        <Form className="flex w-full flex-col items-stretch">
-          <div className="mb-4 flex items-center justify-between">
+        <Form className="flex flex-col items-stretch w-full">
+          <div className="flex justify-between items-center mb-4">
             <p className="gradient-text">Bridge</p>
             <IconButton
               className={`rounded-full bg-[#DBE2FA08] p-1`}
@@ -214,7 +214,7 @@ function ChainSelectSection({ isReview }: { isReview: boolean }) {
   };
 
   return (
-    <div className="mt-2 flex items-center justify-between gap-4">
+    <div className="flex gap-4 justify-between items-center mt-2">
       <ChainSelectField
         name="origin"
         label="From"
@@ -264,7 +264,7 @@ function AmountSection({
 
   return (
     <div className="mt-3.5 space-x-4 rounded-[24px] bg-[#DBE2FA08] pb-[16px] pl-[16px] pr-[16px] pt-[0px]">
-      <div className="flex w-full items-end justify-between">
+      <div className="flex justify-between items-end w-full">
         <div className="w-[70%]">
           {isNft ? (
             <SelectOrInputTokenIds disabled={isReview} />
@@ -292,29 +292,89 @@ function AmountSection({
 }
 
 function RecipientSection({ isReview }: { isReview: boolean }) {
-  const { values } = useFormikContext<TransferFormValues>();
+  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { balance } = useDestinationBalance(values);
+  const [addressText, setAddressText] = useState(values.recipient);
   useRecipientBalanceWatcher(values.recipient, balance);
-
+  const multiProvider = useMultiProvider();
+  const { originChainName } = useStore((s) => ({
+    originChainName: s.originChainName,
+  }));
+  const address = useAccountAddressForChain(multiProvider, originChainName);
+  useEffect(() => {
+    if (address && values.recipient === '') {
+      setFieldValue('recipient', address);
+    }
+  }, [values.recipient, address, setFieldValue]);
   return (
     <div className="mt-4">
+      <Modal
+        dialogClassname="dialog-container"
+        panelClassname="p-4 sm:p-5 max-w-lg min-h-[40vh] modal-conainer"
+        isOpen={isModalOpen}
+        close={() => setIsModalOpen(false)}
+      >
+        <div>
+          <p className="mb-[20px] text-[24px] font-[400] text-[#fff]">Send To</p>
+          <div className="relative mt-1 flex w-full items-center rounded-[24px] border-[1px] border-[#DBE2FA0D] px-[16px] py-[4px]">
+            <WalletIcon color="#707997" width={20} height={20} />
+            <TextField
+              name="recipient"
+              placeholder="0x123456..."
+              className="w-full"
+              style={{ fontSize: '12px' }}
+              disabled={isReview}
+              value={addressText}
+              onChange={(e) => setAddressText(e.target.value)}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="relative mt-4 w-full rounded-[24px] bg-[#DBE2FA0D] px-[32px] py-[18px] font-[700] text-[#717A97]"
+          >
+            Cancel
+          </button>
+          <SolidButton
+            type="button"
+            color="accent"
+            onClick={() => {
+              setIsModalOpen(false);
+              setFieldValue('recipient', addressText);
+            }}
+            className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
+          >
+            <div className="relative z-1">Save</div>
+          </SolidButton>
+        </div>
+      </Modal>
       <div className="flex justify-between pr-1">
         <label htmlFor="recipient" className="block pl-0.5 text-sm text-gray-600">
           Recipient address
         </label>
         <TokenBalance label="Remote balance" balance={balance} />
       </div>
-      <div className="relative mt-1 flex w-full items-center rounded-[24px] border-[1px] border-[#DBE2FA0D] px-[16px]">
-        <WalletIcon color="#707997" width={20} height={20} />
-        <TextField
+      <div className="relative mt-1 flex w-full items-center justify-center rounded-[24px] border-[1px] border-[#DBE2FA0D] px-[16px] py-[16px]">
+        {/* <WalletIcon color="#707997" width={20} height={20} /> */}
+        {/* <TextField
           name="recipient"
           placeholder="0x123456..."
           className="w-full"
           style={{ fontSize: '12px' }}
           disabled={isReview}
           value={values.recipient}
-        />
-        <SelfButton disabled={isReview} />
+        /> */}
+        {/* <SelfButton disabled={isReview} /> */}
+        <span className="text-[16px] font-[500] text-[#707997]">Address:</span>
+        <span className="ml-2 text-[16px] font-[500] text-[#fff]">
+          {values.recipient.length > 6
+            ? values.recipient.slice(0, 6) + '...' + values.recipient.slice(-4)
+            : values.recipient}
+        </span>
+        <IconButton className="ml-2" onClick={() => setIsModalOpen(true)} disabled={isReview}>
+          <Image src={editIcon} width={20} height={20} alt="edit" />
+        </IconButton>
       </div>
     </div>
   );
@@ -379,7 +439,7 @@ function ButtonSection({
         onClick={triggerTransactionsHandler}
         className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
       >
-        <div className="z-1 relative">{`Send to ${chainDisplayName}`}</div>
+        <div className="relative z-1">{`Send to ${chainDisplayName}`}</div>
       </SolidButton>
     </div>
   );
@@ -411,7 +471,7 @@ function MaxButton({ balance, disabled }: { balance?: TokenAmount; disabled?: bo
     >
       {isLoading ? (
         <div className="flex items-center">
-          <SpinnerIcon className="h-5 w-5" color="white" />
+          <SpinnerIcon className="w-5 h-5" color="white" />
         </div>
       ) : (
         'Max'
@@ -420,29 +480,29 @@ function MaxButton({ balance, disabled }: { balance?: TokenAmount; disabled?: bo
   );
 }
 
-function SelfButton({ disabled }: { disabled?: boolean }) {
-  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
-  const multiProvider = useMultiProvider();
-  const chainDisplayName = useChainDisplayName(values.destination);
-  const address = useAccountAddressForChain(multiProvider, values.destination);
-  const onClick = () => {
-    if (disabled) return;
-    if (address) setFieldValue('recipient', address);
-    else
-      toast.warn(`No account found for for chain ${chainDisplayName}, is your wallet connected?`);
-  };
-  return (
-    <SolidButton
-      type="button"
-      onClick={onClick}
-      color="transparent"
-      disabled={disabled}
-      className="absolute bottom-1 right-[16px] top-2.5 m-auto h-fit rounded-[50px] bg-[#DBE2FA0D] px-[12px] py-[4px] text-[12px] text-xs font-[700] opacity-90"
-    >
-      Self
-    </SolidButton>
-  );
-}
+// function SelfButton({ disabled }: { disabled?: boolean }) {
+//   const { values, setFieldValue } = useFormikContext<TransferFormValues>();
+//   const multiProvider = useMultiProvider();
+//   const chainDisplayName = useChainDisplayName(values.destination);
+//   const address = useAccountAddressForChain(multiProvider, values.destination);
+//   const onClick = () => {
+//     if (disabled) return;
+//     if (address) setFieldValue('recipient', address);
+//     else
+//       toast.warn(`No account found for for chain ${chainDisplayName}, is your wallet connected?`);
+//   };
+//   return (
+//     <SolidButton
+//       type="button"
+//       onClick={onClick}
+//       color="transparent"
+//       disabled={disabled}
+//       className="absolute bottom-1 right-[16px] top-2.5 m-auto h-fit rounded-[50px] bg-[#DBE2FA0D] px-[12px] py-[4px] text-[12px] text-xs font-[700] opacity-90"
+//     >
+//       Self
+//     </SolidButton>
+//   );
+// }
 
 function ReviewDetails({ visible }: { visible: boolean }) {
   const { values } = useFormikContext<TransferFormValues>();
@@ -479,8 +539,8 @@ function ReviewDetails({ visible }: { visible: boolean }) {
       <label className="mt-4 block pl-0.5 text-sm text-gray-600">Transactions</label>
       <div className="mt-1.5 space-y-2 break-all rounded-[24px] bg-[#DBE2FA08] px-2.5 py-2 text-sm">
         {isLoading ? (
-          <div className="flex items-center justify-center py-6">
-            <SpinnerIcon className="h-5 w-5" />
+          <div className="flex justify-center items-center py-6">
+            <SpinnerIcon className="w-5 h-5" />
           </div>
         ) : (
           <>

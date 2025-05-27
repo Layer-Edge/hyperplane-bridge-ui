@@ -1,11 +1,14 @@
-import { IToken, Token } from '@hyperlane-xyz/sdk';
+import { ChainMetadata, IToken, Token } from '@hyperlane-xyz/sdk';
 import { isObjEmpty, objFilter } from '@hyperlane-xyz/utils';
 import { Modal, SearchIcon } from '@hyperlane-xyz/widgets';
+import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TokenIcon } from '../../components/icons/TokenIcon';
 import { TextInput } from '../../components/input/TextField';
 import { config } from '../../consts/config';
 // import { useMultiProvider } from '../chains/hooks';
+import redirectIcon from '../../images/icons/redirect-icon.svg';
+import { useChainMetadata } from '../chains/hooks';
 import { useStore } from '../store';
 import { useWarpCore } from './hooks';
 import { TokenChainMap } from './utils';
@@ -26,7 +29,7 @@ export function TokenListModal({
   onSelectUnsupportedRoute: (token: IToken, origin: string) => void;
 }) {
   const [search, setSearch] = useState('');
-
+  const chainMetadata = useChainMetadata(origin);
   const onClose = () => {
     close();
     setSearch('');
@@ -54,6 +57,7 @@ export function TokenListModal({
         <TokenList
           origin={origin}
           destination={destination}
+          chainMetadata={chainMetadata}
           searchQuery={search}
           onSelect={onSelectAndClose}
           onSelectUnsupportedRoute={onSelectUnsupportedRouteAndClose}
@@ -75,7 +79,7 @@ function SearchBar({ search, setSearch }: { search: string; setSearch: (s: strin
         width={20}
         height={20}
         color="#707997"
-        className="absolute pb-1 -translate-y-1/2 opacity-50 left-5 top-1/2"
+        className="absolute left-5 top-1/2 pb-1 opacity-50 -translate-y-1/2"
       />
       <TextInput
         ref={inputRef}
@@ -93,12 +97,14 @@ function SearchBar({ search, setSearch }: { search: string; setSearch: (s: strin
 export function TokenList({
   origin,
   destination,
+  chainMetadata,
   searchQuery,
   onSelect,
   // onSelectUnsupportedRoute,
 }: {
   origin: ChainName;
   destination: ChainName;
+  chainMetadata?: ChainMetadata | undefined | null;
   searchQuery: string;
   onSelect: (token: IToken) => void;
   onSelectUnsupportedRoute: (token: Token, origin: string) => void;
@@ -169,8 +175,26 @@ export function TokenList({
           </div>
           <div className="ml-2 text-left">
             <div className="text-[18px] font-[700] text-white">{t.token.symbol || 'Unknown'}</div>
-            <div className="text-[12px] text-xs font-[500] text-[#707997]">
-              {t.token.name || 'Unknown'}
+            <div className="flex items-center">
+              <div className="text-[12px] text-xs font-[500] text-[#707997]">
+                {t.token.name || 'Unknown'}
+              </div>
+              {chainMetadata &&
+                chainMetadata.blockExplorers &&
+                chainMetadata.blockExplorers.length > 0 && (
+                  <a
+                    href={`${chainMetadata.blockExplorers[0].url}/token/${t.token.addressOrDenom}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Image
+                      src={redirectIcon}
+                      alt={t.token.symbol || 'Unknown'}
+                      className="ml-1"
+                      width={15}
+                    />
+                  </a>
+                )}
             </div>
           </div>
         </button>
@@ -203,7 +227,7 @@ export function TokenList({
 //     ([symbol, { chains, tokenInformation }]) => (
 //       <React.Fragment key={symbol}>
 //         <button
-//           className="flex items-center px-2 py-2 mb-2 -mx-2 transition-all rounded opacity-50 duration-250 hover:bg-gray-200"
+//           className="flex items-center px-2 py-2 -mx-2 mb-2 rounded opacity-50 transition-all duration-250 hover:bg-gray-200"
 //           type="button"
 //           onClick={() => setOpen((prevSymbol) => (prevSymbol === symbol ? null : symbol))}
 //         >
@@ -217,7 +241,7 @@ export function TokenList({
 //           <Image
 //             src={InfoIcon}
 //             alt="Unsupported route for origin and destination"
-//             className="ml-auto mr-1"
+//             className="mr-1 ml-auto"
 //             data-te-toggle="tooltip"
 //             title={`Route not supported for ${getChainDisplayName(
 //               multiProvider,
@@ -255,7 +279,7 @@ export function TokenList({
 //       {Object.entries(chains).map(([chainName, chain]) => (
 //         <button
 //           key={chainName}
-//           className="flex items-center w-full gap-4 px-4 py-2 border-b border-gray-100 rounded hover:bg-gray-200"
+//           className="flex gap-4 items-center px-4 py-2 w-full rounded border-b border-gray-100 hover:bg-gray-200"
 //           onClick={() => onSelectUnsupportedRoute(chain.token, chainName)}
 //         >
 //           <div className="shrink-0">

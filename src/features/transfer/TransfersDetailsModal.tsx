@@ -1,6 +1,6 @@
 import { ProtocolType } from '@hyperlane-xyz/utils';
 import {
-  CopyButton,
+  IconButton,
   MessageStatus,
   MessageTimeline,
   Modal,
@@ -13,8 +13,11 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChainLogo } from '../../components/icons/ChainLogo';
 import { TokenIcon } from '../../components/icons/TokenIcon';
+import copyIcon from '../../images/icons/copy-icon.svg';
 import LinkIcon from '../../images/icons/external-link-icon.svg';
 import tokenTransfer from '../../images/icons/token-select-icon.svg';
+import tokenTransferSuccess from '../../images/icons/token-transfer-success.svg';
+import transferFailed from '../../images/icons/transfer-failed.svg';
 // import { Color } from '../../styles/Color';
 import { formatTimestamp } from '../../utils/date';
 import { getHypExplorerLink } from '../../utils/links';
@@ -24,7 +27,7 @@ import { hasPermissionlessChain } from '../chains/utils';
 import { tryFindToken, useWarpCore } from '../tokens/hooks';
 import { TransferContext, TransferStatus } from './types';
 import {
-  getIconByTransferStatus,
+  // getIconByTransferStatus,
   getTransferStatusLabel,
   isTransferFailed,
   isTransferSent,
@@ -116,27 +119,7 @@ export function TransfersDetailsModal({
       close={onClose}
       panelClassname="p-4 md:p-5 max-w-sm modal-conainer"
     >
-      {isFinal && (
-        <div className="flex justify-between">
-          <h2 className="font-medium text-gray-600">{date}</h2>
-          <div className="flex items-center font-medium">
-            {isSent ? (
-              <h3 className="text-primary-500">Sent</h3>
-            ) : (
-              <h3 className="text-red-500">Failed</h3>
-            )}
-            <Image
-              src={getIconByTransferStatus(status)}
-              width={25}
-              height={25}
-              alt=""
-              className="ml-2"
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="flex w-full items-center justify-center p-3">
+      <div className="flex justify-center items-center p-3 w-full">
         <TokenIcon token={token} size={48} />
         <div className="items ml-2 flex items-baseline text-[36px] font-[500] text-white">
           <span>{amount}</span>
@@ -144,16 +127,24 @@ export function TransfersDetailsModal({
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-center">
-        <div className="mr-2 flex flex-col items-center">
+      <div className="flex justify-center items-center mt-4">
+        <div className="flex flex-col items-center mr-2">
           <div className="rounded-full p-[2px]" style={{ border: '2px solid #707997' }}>
             <ChainLogo chainName={origin} size={40} />
           </div>
         </div>
         <div className="flex">
-          <Image src={tokenTransfer} width={100} alt="Token transfer icon" />
+          {isFinal ? (
+            <Image
+              src={isFailed ? transferFailed : tokenTransferSuccess}
+              width={100}
+              alt="Token transfer icon"
+            />
+          ) : (
+            <Image src={tokenTransfer} width={100} alt="Token transfer icon" />
+          )}
         </div>
-        <div className="ml-2 flex flex-col items-center">
+        <div className="flex flex-col items-center ml-2">
           <div className="rounded-full p-[2px]" style={{ border: '2px solid #707997' }}>
             <ChainLogo chainName={destination} size={40} />
           </div>
@@ -161,44 +152,55 @@ export function TransfersDetailsModal({
       </div>
 
       {isFinal ? (
-        <div className="mt-5 flex flex-col space-y-4 rounded-[24px] bg-[#DBE2FA08] p-4">
-          <TransferProperty name="Sender Address" value={sender} url={fromUrl} />
-          <TransferProperty name="Recipient Address" value={recipient} url={toUrl} />
-          {token?.addressOrDenom && (
-            <TransferProperty name="Token Address or Denom" value={token.addressOrDenom} />
-          )}
-          {originTxHash && (
-            <TransferProperty
-              name="Origin Transaction Hash"
-              value={originTxHash}
-              url={originTxUrl}
-            />
-          )}
-          {msgId && <TransferProperty name="Message ID" value={msgId} />}
-          {explorerLink && (
-            <div className="flex justify-between">
-              <span className="text-xs leading-normal tracking-wider text-gray-350">
-                <a
-                  className="text-xs leading-normal tracking-wider text-gray-350 underline underline-offset-2 hover:opacity-80 active:opacity-70"
-                  href={explorerLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View message in Hyperlane Explorer
-                </a>
-              </span>
-            </div>
-          )}
+        <div>
+          <p className="mb-2 mt-5 text-center text-[22px] font-[700] text-[#FFFFFF]">
+            Your Last Transwer Was
+            {isSent ? (
+              <span className="ml-1 text-[#00FF6F]"> Successful</span>
+            ) : (
+              <span className="ml-1 text-[#FF8787]"> Unsuccesfull</span>
+            )}
+          </p>
+          <p className="mb-5 mt-1 text-center text-[16px] font-[500] text-[#707997]">{date}</p>
+          <div className="mt-5 flex flex-col space-y-4 rounded-[24px] bg-[#DBE2FA08] p-4">
+            <TransferProperty name="Sender Address" value={sender} url={fromUrl} />
+            <TransferProperty name="Recipient Address" value={recipient} url={toUrl} />
+            {token?.addressOrDenom && (
+              <TransferProperty name="Token Address or Denom" value={token.addressOrDenom} />
+            )}
+            {originTxHash && (
+              <TransferProperty
+                name="Origin Transaction Hash"
+                value={originTxHash}
+                url={originTxUrl}
+              />
+            )}
+            {msgId && <TransferProperty name="Message ID" value={msgId} />}
+            {explorerLink && (
+              <div className="flex justify-between">
+                <span className="text-xs tracking-wider leading-normal text-gray-350">
+                  <a
+                    className="text-xs tracking-wider leading-normal underline text-gray-350 underline-offset-2 hover:opacity-80 active:opacity-70"
+                    href={explorerLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View message in Hyperlane Explorer
+                  </a>
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-4">
+        <div className="flex flex-col justify-center items-center py-4">
           <div
             className={`mt-5 text-center text-[24px] font-[500] ${isFailed ? 'text-red-600' : 'text-[#707997]'}`}
           >
             {statusDescription}
           </div>
           {showSignWarning && (
-            <div className="mt-3 text-center text-sm text-gray-600">
+            <div className="mt-3 text-sm text-center text-gray-600">
               If your wallet does not show a transaction request or never confirms, please try the
               transfer again.
             </div>
@@ -226,7 +228,7 @@ export function Timeline({
   const messageStatus = isFailed ? MessageStatus.Failing : message?.status || MessageStatus.Pending;
 
   return (
-    <div className="timeline-container mb-2 mt-6 flex w-full flex-col items-center justify-center">
+    <div className="flex flex-col justify-center items-center mt-6 mb-2 w-full timeline-container">
       <MessageTimeline
         status={messageStatus}
         stage={stage}
@@ -241,10 +243,10 @@ export function Timeline({
 function TransferProperty({ name, value, url }: { name: string; value: string; url?: string }) {
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center w-full">
         <label className="text-sm leading-normal tracking-wider text-[#707997]">{name}</label>
         <div className="flex items-center space-x-2">
-          <div className="mt-1 truncate text-sm leading-normal tracking-wider text-white">
+          <div className="mt-1 text-sm tracking-wider leading-normal text-white truncate">
             {value.length > 10 ? `${value.slice(0, 4)}...${value.slice(-4)}` : value}
           </div>
           {url && (
@@ -252,13 +254,9 @@ function TransferProperty({ name, value, url }: { name: string; value: string; u
               <Image src={LinkIcon} width={14} height={14} alt="" />
             </a>
           )}
-          <CopyButton
-            copyValue={value}
-            width={14}
-            height={14}
-            className="opacity-40"
-            color="white"
-          />
+          <IconButton onClick={() => navigator.clipboard.writeText(value)}>
+            <Image src={copyIcon} width={14} height={14} alt="" />
+          </IconButton>
         </div>
       </div>
     </div>
