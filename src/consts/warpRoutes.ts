@@ -11,11 +11,14 @@ export const warpRouteConfigs: WarpCoreConfig = {
             decimals: 18,
             symbol: 'EDGEN',
             name: 'LayerEdge',
-            addressOrDenom: '0x5ce55C6c132c5Aa04028635b8a83fB6940f392Da',
-            collateralAddressOrDenom: '0x64508Ee3af87a7F26D4F531B10E13585dA29f15b',
+            addressOrDenom: '0x35c8cD01312257e98c70c2e6cdC1a3aE6e338769',
+            collateralAddressOrDenom: '0xaCB36D5ff50D3A811282b7E334c418A8D37D29b8',
             connections: [
                 {
-                    token: 'ethereum|bsctestnet|0x83c2084CC653c5149b3f429503188836fe280e71',
+                    token: 'ethereum|bsctestnet|0x0bd1e41fD7fBC3A41daA33fd9B8eE36D832C3677',
+                },
+                {
+                    token: 'ethereum|edgentestnet|0x37ec16e00C39a84A082dFAb74Af450DedD50Bf77',
                 },
             ],
         },
@@ -25,10 +28,29 @@ export const warpRouteConfigs: WarpCoreConfig = {
             decimals: 18,
             symbol: 'EDGEN',
             name: 'LayerEdge',
-            addressOrDenom: '0x83c2084CC653c5149b3f429503188836fe280e71',
+            addressOrDenom: '0x0bd1e41fD7fBC3A41daA33fd9B8eE36D832C3677',
             connections: [
                 {
-                    token: 'ethereum|basesepolia|0x5ce55C6c132c5Aa04028635b8a83fB6940f392Da', // Fixed: Use the actual token address
+                    token: 'ethereum|basesepolia|0x35c8cD01312257e98c70c2e6cdC1a3aE6e338769',
+                },
+                {
+                    token: 'ethereum|edgentestnet|0x37ec16e00C39a84A082dFAb74Af450DedD50Bf77',
+                },
+            ],
+        },
+        {
+            chainName: 'edgentestnet',
+            standard: TokenStandard.EvmHypNative,
+            decimals: 18,
+            symbol: 'EDGEN',
+            name: 'LayerEdge',
+            addressOrDenom: '0x37ec16e00C39a84A082dFAb74Af450DedD50Bf77',
+            connections: [
+                {
+                    token: 'ethereum|basesepolia|0x35c8cD01312257e98c70c2e6cdC1a3aE6e338769',
+                },
+                {
+                    token: 'ethereum|bsctestnet|0x0bd1e41fD7fBC3A41daA33fd9B8eE36D832C3677',
                 },
             ],
         },
