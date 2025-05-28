@@ -80,7 +80,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
     },
     mailbox: '0x9Af611a6Fa2DAC0C3C63D1B1b448Bbc44Bd5b8a3',
     interchainGasPaymaster: '0x2c96613cf2f03ce8332c9a7e2a9f8ac1584b45c0',
-    logoURI: '/edge-logo.svg',
+    logoURI: '/edge-logo.png',
   },
 };
 

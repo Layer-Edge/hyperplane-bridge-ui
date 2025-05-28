@@ -154,7 +154,7 @@ export function TransfersDetailsModal({
       {isFinal ? (
         <div>
           <p className="mb-2 mt-5 text-center text-[22px] font-[700] text-[#FFFFFF]">
-            Your Last Transwer Was
+            Your Last Transfer Was
             {isSent ? (
               <span className="ml-1 text-[#00FF6F]"> Successful</span>
             ) : (
