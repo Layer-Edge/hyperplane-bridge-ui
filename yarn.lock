@@ -12300,10 +12300,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zksync/contracts@https://github.com/matter-labs/era-contracts.git#446d391d34bdb48255d5f8fef8a8248925fc98b9":
+"@zksync/contracts@https://github.com/matter-labs/era-contracts.git#84d5e3716f645909e8144c7d50af9dd6dd9ded62":
   version: 0.1.0
-  resolution: "@zksync/contracts@https://github.com/matter-labs/era-contracts.git#commit=446d391d34bdb48255d5f8fef8a8248925fc98b9"
-  checksum: 10/982b27c109e55a332f6690e164230a033f3c8292dc816b46798704410796caee5b7b3336d9fd238b5b2aedc7a8ffb54ee294e948d11cfb22e925a4c17392e5ab
+  resolution: "@zksync/contracts@https://github.com/matter-labs/era-contracts.git#commit=84d5e3716f645909e8144c7d50af9dd6dd9ded62"
+  checksum: 10/0afb592b41222313144b558921c40137cd556d444fa645721ee57785c95cf375d04250c6b9f5af591c08549a95c6faea50db8ab9ce7f2545fcaebdc1b8c61c4f
   languageName: node
   linkType: hard
 

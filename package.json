@@ -112,7 +112,7 @@
     "react-fast-compare": "^3.2",
     "viem": "^2.7.9",
     "zustand": "^4.4",
-    "@zksync/contracts": "https://github.com/matter-labs/era-contracts.git#446d391d34bdb48255d5f8fef8a8248925fc98b9",
+    "@zksync/contracts": "https://github.com/matter-labs/era-contracts.git#84d5e3716f645909e8144c7d50af9dd6dd9ded62",
     "zksync-telemetry-js": "https://github.com/matter-labs/zksync-telemetry-js.git#65e272e5303e37f78aa46a53909fff7e9db1f015"
   }
 }
