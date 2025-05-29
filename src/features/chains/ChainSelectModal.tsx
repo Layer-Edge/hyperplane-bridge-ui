@@ -37,7 +37,7 @@ export function ChainSelectListModal({
 
     const filteredObj = Object.fromEntries(
         Object.entries(metadata).filter(([chainName, chainData]) => {
-          // Add null checks to prevent errors
+            console.log(chainName)
           if (!chainData) return false;
 
           const name = chainData.name?.toLowerCase() || '';

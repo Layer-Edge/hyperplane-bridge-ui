@@ -142,7 +142,6 @@ export function TokenList({
         .filter((t) => (config.showDisabledTokens ? true : !t.disabled))
     );
   }, [warpCore, searchQuery, origin, destination]);
-
   const unsupportedRouteTokensBySymbolMap = useMemo(() => {
     const tokenSymbols = tokens.map((item) => item.token.symbol);
     const q = searchQuery?.trim().toLowerCase();
