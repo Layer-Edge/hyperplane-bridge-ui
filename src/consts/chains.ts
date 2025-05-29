@@ -12,7 +12,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
     chainId: 84532,
     domainId: 84532,
     name: 'basesepolia',
-    displayName: 'Base Sepolia',
+    displayName: 'Base',
     nativeToken: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: [{ http: 'https://sepolia.base.org' }],
     blockExplorers: [

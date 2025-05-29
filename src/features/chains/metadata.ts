@@ -20,61 +20,13 @@ import { config } from '../../consts/config.ts';
 import { links } from '../../consts/links.ts';
 import { logger } from '../../utils/logger.ts';
 
-// Helper function to get only custom chains (not from registry)
-export function getCustomChainsOnly(): ChainMap<ChainMetadata> {
-  const result = z.record(ChainMetadataSchema).safeParse({
-    ...ChainsYaml,
-    ...ChainsTS,
-  });
-
-  if (!result.success) {
-    logger.warn('Invalid custom chain metadata', result.error);
-    throw new Error(`Invalid custom chain metadata: ${result.error.toString()}`);
-  }
-
-  return result.data as ChainMap<ChainMetadata>;
-}
-
-// Helper function to get only registry chains
-export async function getRegistryChainsOnly(
-    chainsInTokens: ChainName[],
-    registry: IRegistry,
-): Promise<ChainMap<ChainMetadata>> {
-  let registryChainMetadata: ChainMap<ChainMetadata>;
-
-  if (config.registryUrl) {
-    logger.debug('Using custom registry metadata from:', config.registryUrl);
-    registryChainMetadata = await registry.getMetadata();
-  } else {
-    logger.debug('Using default published registry');
-    registryChainMetadata = publishedChainMetadata;
-  }
-
-  // Filter out chains that are not in the tokens config
-  registryChainMetadata = objFilter(registryChainMetadata, (c, m): m is ChainMetadata =>
-      chainsInTokens.includes(c),
-  );
-
-  // Add logo URIs to registry chains
-  registryChainMetadata = await promiseObjAll(
-      objMap(
-          registryChainMetadata,
-          async (chainName, metadata): Promise<ChainMetadata> => ({
-            ...metadata,
-            logoURI: `${links.imgPath}/chains/${chainName}/logo.svg`,
-          }),
-      ),
-  );
-
-  return registryChainMetadata;
-}
-
 export async function assembleChainMetadata(
     chainsInTokens: ChainName[],
     registry: IRegistry,
     storeMetadataOverrides?: ChainMap<Partial<ChainMetadata | undefined>>,
 ) {
   // Chains must include a cosmos chain or CosmosKit throws errors
+  // @ts-ignore
   const result = z.record(ChainMetadataSchema).safeParse({
     ...ChainsYaml,
     ...ChainsTS,
@@ -109,12 +61,11 @@ export async function assembleChainMetadata(
           }),
       ),
   );
-
   const mergedChainMetadata = mergeChainMetadataMap(registryChainMetadata, filesystemMetadata);
 
   const parsedRpcOverridesResult = tryParseJsonOrYaml(config.rpcOverrides);
-  const rpcOverrides = z
-      .record(RpcUrlSchema)
+  // @ts-ignore
+  const rpcOverrides = z.record(RpcUrlSchema)
       .safeParse(parsedRpcOverridesResult.success && parsedRpcOverridesResult.data);
   if (config.rpcOverrides && !rpcOverrides.success) {
     logger.warn('Invalid RPC overrides config', rpcOverrides.error);
@@ -138,49 +89,5 @@ export async function assembleChainMetadata(
   });
 
   const chainMetadataWithOverrides = mergeChainMetadataMap(chainMetadata, storeMetadataOverrides);
-
-  return {
-    chainMetadata,
-    chainMetadataWithOverrides,
-    customChainsOnly: filesystemMetadata, // Only your custom chains from files
-    registryChainsOnly: registryChainMetadata, // Only registry chains
-  };
-}
-
-// Usage examples:
-
-// Get only custom chains
-export function logCustomChains() {
-  const customChains = getCustomChainsOnly();
-  console.log('Custom chains only:', Object.keys(customChains));
-  return customChains;
-}
-
-// Get only registry chains
-export async function logRegistryChains(
-    chainsInTokens: ChainName[],
-    registry: IRegistry,
-) {
-  const registryChains = await getRegistryChainsOnly(chainsInTokens, registry);
-  console.log('Registry chains only:', Object.keys(registryChains));
-  return registryChains;
-}
-
-// Compare custom vs registry chains
-export async function compareChainSources(
-    chainsInTokens: ChainName[],
-    registry: IRegistry,
-) {
-  const customChains = getCustomChainsOnly();
-  const registryChains = await getRegistryChainsOnly(chainsInTokens, registry);
-
-  const customChainNames = Object.keys(customChains);
-  const registryChainNames = Object.keys(registryChains);
-
-  return {
-    customChains,
-    registryChains,
-    customChainNames,
-    registryChainNames,
-  };
+  return { chainMetadata, chainMetadataWithOverrides };
 }
