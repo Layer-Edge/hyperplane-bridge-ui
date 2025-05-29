@@ -1,4 +1,3 @@
-
 import { ChainMap, ChainMetadata, ExplorerFamily } from '@hyperlane-xyz/sdk';
 import { Address, ProtocolType } from '@hyperlane-xyz/utils';
 
@@ -7,6 +6,56 @@ import { Address, ProtocolType } from '@hyperlane-xyz/utils';
 // Chains already in the SDK need not be included here unless you want to override some fields
 // Schema here: https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/typescript/sdk/src/metadata/chainMetadataTypes.ts
 export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGasPaymaster?: Address }> = {
+  ethereum: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 1,
+    domainId: 1,
+    name: 'ethereum',
+    displayName: 'Ethereum',
+    nativeToken: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: [{ http: 'https://ethereum.publicnode.com' }],
+    blockExplorers: [
+      {
+        name: 'Etherscan',
+        url: 'https://etherscan.io',
+        apiUrl: 'https://api.etherscan.io/api',
+        family: ExplorerFamily.Etherscan,
+      },
+    ],
+    blocks: {
+      confirmations: 3,
+      reorgPeriod: 14,
+      estimateBlockTime: 13,
+    },
+    interchainGasPaymaster: '0x13113bd4429735a0e7c398e455f7b39f35e38b52',
+    mailbox:'0xc005dc82818d67AF737725bD4bf75435d065D239',
+    logoURI: '/ethereum-logo.png',
+  },
+  bsc: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 56,
+    domainId: 56,
+    name: 'bsc',
+    displayName: 'BSC',
+    nativeToken: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+    rpcUrls: [{ http: 'https://bsc-dataseed1.binance.org' }],
+    blockExplorers: [
+      {
+        name: 'BscScan',
+        url: 'https://bscscan.com',
+        apiUrl: 'https://api.bscscan.com/api',
+        family: ExplorerFamily.Etherscan,
+      },
+    ],
+    blocks: {
+      confirmations: 3,
+      reorgPeriod: 15,
+      estimateBlockTime: 3,
+    },
+    interchainGasPaymaster: '0x2e49da0dc6bfac19f522da4a5379dff4cafa3b34',
+    mailbox:'0x2971b9Aec44bE4eb673DF1B88cDB57b96eefe8a4',
+    logoURI: '/bsc-logo.svg',
+  },
   basesepolia: {
     protocol: ProtocolType.Ethereum,
     chainId: 84532,
@@ -83,7 +132,6 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
     logoURI: '/edge-logo.png',
   },
 };
-
 
 export const chainsRentEstimate: ChainMap<bigint> = {
   eclipsemainnet: BigInt(Math.round(0.00004019 * 10 ** 9)),

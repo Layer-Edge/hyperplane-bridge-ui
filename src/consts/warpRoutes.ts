@@ -5,7 +5,7 @@ import { TokenStandard, WarpCoreConfig } from '@hyperlane-xyz/sdk';
 // The input here is typically the output of the Hyperlane CLI warp deploy command
 export const warpRouteConfigs: WarpCoreConfig = {
   tokens: [
-    // EDGEN Token Configuration
+    // EDGEN Token Configuration - Testnet
     {
       chainName: 'basesepolia',
       standard: TokenStandard.EvmHypCollateral,
@@ -58,7 +58,37 @@ export const warpRouteConfigs: WarpCoreConfig = {
         },
       ],
     },
-    // USDC Token Configuration
+    // EDGEN Token Configuration - Mainnet
+    {
+      chainName: 'ethereum',
+      standard: TokenStandard.EvmHypCollateral,
+      decimals: 18,
+      symbol: 'EDGEN',
+      logoURI: '/edge-logo.png',
+      name: 'LayerEdge',
+      addressOrDenom: '0xB8bB85FD0836691a64aFc23199566F898a1d6f4a',
+      collateralAddressOrDenom: '0xAa9806c938836627Ed1a41Ae871c7E1889AE02Ca',
+      connections: [
+        {
+          token: 'ethereum|bsc|0x0C808F0464C423d5Ea4F4454fcc23B6E2Ae75562',
+        },
+      ],
+    },
+    {
+      chainName: 'bsc',
+      standard: TokenStandard.EvmHypSynthetic,
+      decimals: 18,
+      symbol: 'EDGEN',
+      logoURI: '/edge-logo.png',
+      name: 'LayerEdge',
+      addressOrDenom: '0x0C808F0464C423d5Ea4F4454fcc23B6E2Ae75562',
+      connections: [
+        {
+          token: 'ethereum|ethereum|0xB8bB85FD0836691a64aFc23199566F898a1d6f4a',
+        },
+      ],
+    },
+    // USDC Token Configuration - Testnet
     {
       chainName: 'basesepolia',
       standard: TokenStandard.EvmHypCollateral,
