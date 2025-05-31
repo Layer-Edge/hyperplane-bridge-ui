@@ -129,6 +129,31 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
     mailbox: '0x9Af611a6Fa2DAC0C3C63D1B1b448Bbc44Bd5b8a3',
     logoURI: '/edge-logo.png',
   },
+  edgenchain: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 4207,
+    domainId: 4207,
+    name: 'edgenchain',
+    displayName: 'EDGEN CHAIN',
+    nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
+    rpcUrls: [{ http: 'https://rpc.layeredge.io' }],
+    blockExplorers: [
+      {
+        name: 'EdgeExplorer',
+        url: 'https://edgenscan.io',
+        apiUrl: 'https://edgenscan.io/api',
+        family: ExplorerFamily.Blockscout,
+      },
+    ],
+    blocks: {
+      confirmations: 1,
+      reorgPeriod: 1,
+      estimateBlockTime: 2,
+    },
+    mailbox: '0xef07FAE1a6912C8d333F72E01A03CE3bb18E12a1',
+    interchainGasPaymaster:'0x8badaacd60824c5db01e9c3616e4906ca90b7c02',
+    logoURI: '/edge-logo.png',
+  },
 };
 
 export const chainsRentEstimate: ChainMap<bigint> = {
