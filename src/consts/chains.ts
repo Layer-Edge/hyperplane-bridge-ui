@@ -103,7 +103,6 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
       estimateBlockTime: 3,
     },
     mailbox: '0xF9F6F5646F478d5ab4e20B0F910C92F1CCC9Cc6D',
-    interchainGasPaymaster: '0x4d14e1223f672c067f50b326e77a0c9b0b7a0a5e',
     logoURI: '/bsc-logo.svg',
   },
   edgentestnet: {
@@ -128,7 +127,6 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
       estimateBlockTime: 2,
     },
     mailbox: '0x9Af611a6Fa2DAC0C3C63D1B1b448Bbc44Bd5b8a3',
-    interchainGasPaymaster: '0x2c96613cf2f03ce8332c9a7e2a9f8ac1584b45c0',
     logoURI: '/edge-logo.png',
   },
 };
