@@ -5,7 +5,9 @@ import { Address, ProtocolType } from '@hyperlane-xyz/utils';
 // Chains can be defined here, in chains.json, or in chains.yaml
 // Chains already in the SDK need not be included here unless you want to override some fields
 // Schema here: https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/typescript/sdk/src/metadata/chainMetadataTypes.ts
-export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGasPaymaster?: Address }> = {
+export const chains: ChainMap<
+  ChainMetadata & { mailbox?: Address; interchainGasPaymaster?: Address }
+> = {
   ethereum: {
     protocol: ProtocolType.Ethereum,
     chainId: 1,
@@ -28,7 +30,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
       estimateBlockTime: 13,
     },
     interchainGasPaymaster: '0x13113bd4429735a0e7c398e455f7b39f35e38b52',
-    mailbox:'0xc005dc82818d67AF737725bD4bf75435d065D239',
+    mailbox: '0xc005dc82818d67AF737725bD4bf75435d065D239',
     logoURI: '/ethereum-logo.png',
   },
   bsc: {
@@ -53,7 +55,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
       estimateBlockTime: 3,
     },
     interchainGasPaymaster: '0x2e49da0dc6bfac19f522da4a5379dff4cafa3b34',
-    mailbox:'0x2971b9Aec44bE4eb673DF1B88cDB57b96eefe8a4',
+    mailbox: '0x2971b9Aec44bE4eb673DF1B88cDB57b96eefe8a4',
     logoURI: '/bsc-logo.svg',
   },
   basesepolia: {
@@ -134,7 +136,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
     chainId: 4207,
     domainId: 4207,
     name: 'edgenchain',
-    displayName: 'EDGEN CHAIN',
+    displayName: 'Edgen Chain',
     nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
     rpcUrls: [{ http: 'https://rpc.layeredge.io' }],
     blockExplorers: [
@@ -151,7 +153,7 @@ export const chains: ChainMap<ChainMetadata & { mailbox?: Address; interchainGas
       estimateBlockTime: 2,
     },
     mailbox: '0xef07FAE1a6912C8d333F72E01A03CE3bb18E12a1',
-    interchainGasPaymaster:'0x8badaacd60824c5db01e9c3616e4906ca90b7c02',
+    interchainGasPaymaster: '0x8badaacd60824c5db01e9c3616e4906ca90b7c02',
     logoURI: '/edge-logo.png',
   },
 };
