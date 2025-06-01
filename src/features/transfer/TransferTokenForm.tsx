@@ -50,7 +50,6 @@ import {
 import { RecipientConfirmationModal } from './RecipientConfirmationModal';
 import { useFetchMaxAmount } from './maxAmount';
 import { TransferFormValues } from './types';
-import { useRecipientBalanceWatcher } from './useBalanceWatcher';
 import { useFeeQuotes } from './useFeeQuotes';
 import { useTokenTransfer } from './useTokenTransfer';
 
@@ -107,8 +106,8 @@ export function TransferTokenForm() {
       validateOnBlur={false}
     >
       {({ isValidating }) => (
-        <Form className="flex flex-col items-stretch w-full">
-          <div className="flex justify-between items-center mb-4">
+        <Form className="flex w-full flex-col items-stretch">
+          <div className="mb-4 flex items-center justify-between">
             <p className="gradient-text">Bridge</p>
             <IconButton
               className={`rounded-full bg-[#DBE2FA08] p-1`}
@@ -214,7 +213,7 @@ function ChainSelectSection({ isReview }: { isReview: boolean }) {
   };
 
   return (
-    <div className="flex gap-4 justify-between items-center mt-2">
+    <div className="mt-2 flex items-center justify-between gap-4">
       <ChainSelectField
         name="origin"
         label="From"
@@ -264,7 +263,7 @@ function AmountSection({
 
   return (
     <div className="mt-3.5 space-x-4 rounded-[24px] bg-[#DBE2FA08] pb-[16px] pl-[16px] pr-[16px] pt-[0px]">
-      <div className="flex justify-between items-end w-full">
+      <div className="flex w-full items-end justify-between">
         <div className="w-[70%]">
           {isNft ? (
             <SelectOrInputTokenIds disabled={isReview} />
@@ -296,7 +295,6 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { balance } = useDestinationBalance(values);
   const [addressText, setAddressText] = useState(values.recipient);
-  useRecipientBalanceWatcher(values.recipient, balance);
   const multiProvider = useMultiProvider();
   const { originChainName } = useStore((s) => ({
     originChainName: s.originChainName,
@@ -345,7 +343,7 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
             }}
             className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
           >
-            <div className="relative z-1">Save</div>
+            <div className="z-1 relative">Save</div>
           </SolidButton>
         </div>
       </Modal>
@@ -439,7 +437,7 @@ function ButtonSection({
         onClick={triggerTransactionsHandler}
         className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
       >
-        <div className="relative z-1">{`Send to ${chainDisplayName}`}</div>
+        <div className="z-1 relative">{`Send to ${chainDisplayName}`}</div>
       </SolidButton>
     </div>
   );
@@ -471,7 +469,7 @@ function MaxButton({ balance, disabled }: { balance?: TokenAmount; disabled?: bo
     >
       {isLoading ? (
         <div className="flex items-center">
-          <SpinnerIcon className="w-5 h-5" color="white" />
+          <SpinnerIcon className="h-5 w-5" color="white" />
         </div>
       ) : (
         'Max'
@@ -539,8 +537,8 @@ function ReviewDetails({ visible }: { visible: boolean }) {
       <label className="mt-4 block pl-0.5 text-sm text-gray-600">Transactions</label>
       <div className="mt-1.5 space-y-2 break-all rounded-[24px] bg-[#DBE2FA08] px-2.5 py-2 text-sm">
         {isLoading ? (
-          <div className="flex justify-center items-center py-6">
-            <SpinnerIcon className="w-5 h-5" />
+          <div className="flex items-center justify-center py-6">
+            <SpinnerIcon className="h-5 w-5" />
           </div>
         ) : (
           <>
