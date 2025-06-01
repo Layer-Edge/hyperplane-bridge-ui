@@ -67,6 +67,6 @@ export function ChainSelectField({ name, label, onChange, disabled, customListIt
 
 const styles = {
   base: 'bg-[#DBE2FA08] px-[16px] py-[16px] w-full flex items-center justify-between text-sm rounded-[24px] outline-none transition-colors duration-500',
-  enabled: 'hover:bg-gray-100 active:scale-95',
+  enabled: 'active:scale-95',
   disabled: 'cursor-default',
 };

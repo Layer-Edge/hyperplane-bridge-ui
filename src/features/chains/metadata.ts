@@ -6,11 +6,7 @@ import {
   mergeChainMetadataMap,
   RpcUrlSchema,
 } from '@hyperlane-xyz/sdk';
-import {
-  objMap,
-  ProtocolType,
-  tryParseJsonOrYaml,
-} from '@hyperlane-xyz/utils';
+import { objMap, ProtocolType, tryParseJsonOrYaml } from '@hyperlane-xyz/utils';
 import { z } from 'zod';
 import { chains as ChainsTS } from '../../consts/chains.ts';
 import ChainsYaml from '../../consts/chains.yaml';
@@ -18,9 +14,9 @@ import { config } from '../../consts/config.ts';
 import { logger } from '../../utils/logger.ts';
 
 export async function assembleChainMetadata(
-    chainsInTokens: ChainName[],
-    registry: IRegistry,
-    storeMetadataOverrides?: ChainMap<Partial<ChainMetadata | undefined>>,
+  chainsInTokens: ChainName[],
+  registry: IRegistry,
+  storeMetadataOverrides?: ChainMap<Partial<ChainMetadata | undefined>>,
 ) {
   // Chains must include a cosmos chain or CosmosKit throws errors
   // @ts-ignore
@@ -37,7 +33,6 @@ export async function assembleChainMetadata(
   // Set registryChainMetadata to empty object to only use custom chains
   const registryChainMetadata: ChainMap<ChainMetadata> = {};
 
-
   // Skip registry fetching since we want empty registry metadata
   logger.debug('Using only custom chains from filesystem, skipping registry');
 
@@ -46,25 +41,26 @@ export async function assembleChainMetadata(
 
   const parsedRpcOverridesResult = tryParseJsonOrYaml(config.rpcOverrides);
   // @ts-ignore
-  const rpcOverrides = z.record(RpcUrlSchema)
-      .safeParse(parsedRpcOverridesResult.success && parsedRpcOverridesResult.data);
+  const rpcOverrides = z
+    .record(RpcUrlSchema)
+    .safeParse(parsedRpcOverridesResult.success && parsedRpcOverridesResult.data);
   if (config.rpcOverrides && !rpcOverrides.success) {
     logger.warn('Invalid RPC overrides config', rpcOverrides.error);
   }
 
   const chainMetadata = objMap(mergedChainMetadata, (chainName, metadata) => {
     const overridesUrl =
-        rpcOverrides.success && rpcOverrides.data[chainName]
-            ? rpcOverrides.data[chainName]
-            : undefined;
+      rpcOverrides.success && rpcOverrides.data[chainName]
+        ? rpcOverrides.data[chainName]
+        : undefined;
 
     if (!overridesUrl) return metadata;
 
     // Only EVM supports fallback transport, so we are putting the override at the end
     const rpcUrls =
-        metadata.protocol === ProtocolType.Ethereum
-            ? [...metadata.rpcUrls, overridesUrl]
-            : [overridesUrl, ...metadata.rpcUrls];
+      metadata.protocol === ProtocolType.Ethereum
+        ? [...metadata.rpcUrls, overridesUrl]
+        : [overridesUrl, ...metadata.rpcUrls];
 
     return { ...metadata, rpcUrls };
   });
