@@ -2,7 +2,7 @@ import { TokenStandard, WarpCoreConfig } from '@hyperlane-xyz/sdk';
 
 export const warpRouteConfigs: WarpCoreConfig = {
   tokens: [
-    // MAINNET EDGEN Token Configuration - Updated
+    // MAINNET EDGEN Token Configuration
     {
       chainName: 'ethereum',
       standard: TokenStandard.EvmHypCollateral,
@@ -52,6 +52,33 @@ export const warpRouteConfigs: WarpCoreConfig = {
         },
         {
           token: 'ethereum|bsc|0x0C808F0464C423d5Ea4F4454fcc23B6E2Ae75562',
+        },
+      ],
+    },
+    // WETH Token Configuration
+    {
+      chainName: 'ethereum',
+      standard: TokenStandard.EvmHypNative,
+      decimals: 18,
+      symbol: 'WETH',
+      name: 'Wrapped Ether',
+      addressOrDenom: '0xBeD6af5a688aC3F535d4E352D40d2ae67D22Ef24',
+      connections: [
+        {
+          token: 'ethereum|edgenchain|0x4B0B28523e239A518Be03A0957299FBE87fa353C',
+        },
+      ],
+    },
+    {
+      chainName: 'edgenchain',
+      standard: TokenStandard.EvmHypSynthetic,
+      decimals: 18,
+      symbol: 'WETH',
+      name: 'Wrapped Ether',
+      addressOrDenom: '0x4B0B28523e239A518Be03A0957299FBE87fa353C',
+      connections: [
+        {
+          token: 'ethereum|ethereum|0xBeD6af5a688aC3F535d4E352D40d2ae67D22Ef24',
         },
       ],
     },
