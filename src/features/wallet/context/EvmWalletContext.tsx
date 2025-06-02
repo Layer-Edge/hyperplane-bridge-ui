@@ -12,7 +12,6 @@ import {
     metaMaskWallet,
     rainbowWallet,
     trustWallet,
-    walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { PropsWithChildren, useMemo } from 'react';
 import { createClient, fallback, http } from 'viem';
@@ -31,7 +30,7 @@ function initWagmi(multiProvider: MultiProtocolProvider) {
         [
             {
                 groupName: 'Recommended',
-                wallets: [metaMaskWallet, injectedWallet, walletConnectWallet, ledgerWallet],
+                wallets: [metaMaskWallet, injectedWallet, ledgerWallet],
             },
             {
                 groupName: 'More',
