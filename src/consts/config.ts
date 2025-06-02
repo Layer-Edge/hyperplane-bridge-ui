@@ -39,8 +39,8 @@ export const config: Config = Object.freeze({
   chainWalletWhitelists,
   enableExplorerLink: false,
   // Set default chains to ones that actually exist in your chains.ts
-  defaultOriginChain: 'basesepolia', // or 'bsctestnet' or 'edgentestnet'
-  defaultDestinationChain: 'bsctestnet', // or 'edgentestnet' or 'basesepolia'
+  defaultOriginChain: 'ethereum', // or 'bsctestnet' or 'edgentestnet'
+  defaultDestinationChain: 'edgenchain', // or 'edgentestnet' or 'basesepolia'
   isDevMode,
   registryUrl,
   registryBranch,

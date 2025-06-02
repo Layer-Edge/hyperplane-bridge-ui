@@ -58,79 +58,6 @@ export const chains: ChainMap<
     mailbox: '0x2971b9Aec44bE4eb673DF1B88cDB57b96eefe8a4',
     logoURI: '/bsc-logo.svg',
   },
-  basesepolia: {
-    protocol: ProtocolType.Ethereum,
-    chainId: 84532,
-    domainId: 84532,
-    name: 'basesepolia',
-    displayName: 'Base',
-    nativeToken: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: [{ http: 'https://sepolia.base.org' }],
-    blockExplorers: [
-      {
-        name: 'BaseScan',
-        url: 'https://sepolia.basescan.org',
-        apiUrl: 'https://api-sepolia.basescan.org/api',
-        family: ExplorerFamily.Etherscan,
-      },
-    ],
-    blocks: {
-      confirmations: 1,
-      reorgPeriod: 1,
-      estimateBlockTime: 2,
-    },
-    mailbox: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    interchainGasPaymaster: '0x99d3b8002107d1c1924f7a5092ba373f4a8924fb',
-    logoURI: '/base-logo.svg',
-  },
-  bsctestnet: {
-    protocol: ProtocolType.Ethereum,
-    chainId: 97,
-    domainId: 97,
-    name: 'bsctestnet',
-    displayName: 'BSC Testnet',
-    nativeToken: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-    rpcUrls: [{ http: 'https://data-seed-prebsc-1-s1.binance.org:8545' }],
-    blockExplorers: [
-      {
-        name: 'BscScan',
-        url: 'https://testnet.bscscan.com',
-        apiUrl: 'https://api-testnet.bscscan.com/api',
-        family: ExplorerFamily.Etherscan,
-      },
-    ],
-    blocks: {
-      confirmations: 1,
-      reorgPeriod: 9,
-      estimateBlockTime: 3,
-    },
-    mailbox: '0xF9F6F5646F478d5ab4e20B0F910C92F1CCC9Cc6D',
-    logoURI: '/bsc-logo.svg',
-  },
-  edgentestnet: {
-    protocol: ProtocolType.Ethereum,
-    chainId: 3456,
-    domainId: 3456,
-    name: 'edgentestnet',
-    displayName: 'EdgeTestnet',
-    nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
-    rpcUrls: [{ http: 'https://testnet-rpc.layeredge.io' }],
-    blockExplorers: [
-      {
-        name: 'EdgeExplorer',
-        url: 'https://testnet-explorer.layeredge.io',
-        apiUrl: 'https://testnet-explorer.layeredge.io/api',
-        family: ExplorerFamily.Blockscout,
-      },
-    ],
-    blocks: {
-      confirmations: 1,
-      reorgPeriod: 1,
-      estimateBlockTime: 2,
-    },
-    mailbox: '0x9Af611a6Fa2DAC0C3C63D1B1b448Bbc44Bd5b8a3',
-    logoURI: '/edge-logo.png',
-  },
   edgenchain: {
     protocol: ProtocolType.Ethereum,
     chainId: 4207,
@@ -138,7 +65,7 @@ export const chains: ChainMap<
     name: 'edgenchain',
     displayName: 'Edgen Chain',
     nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
-    rpcUrls: [{ http: 'https://rpc.layeredge.io' }],
+    rpcUrls: [{ http: 'https://rpc.layeredge.io' },{ http: 'https://rpc2.layeredge.io' },{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{http: 'https://layeredge.rpc.subquery.network/public'}],
     blockExplorers: [
       {
         name: 'EdgeExplorer',
