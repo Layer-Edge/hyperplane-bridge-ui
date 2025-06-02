@@ -20,10 +20,7 @@ export async function assembleChainMetadata(
 ) {
   // Chains must include a cosmos chain or CosmosKit throws errors
   // @ts-ignore
-  const result = z.record(ChainMetadataSchema).safeParse({
-    ...ChainsYaml,
-    ...ChainsTS,
-  });
+  const result = z.record(ChainMetadataSchema).safeParse({ ...ChainsYaml, ...ChainsTS });
   if (!result.success) {
     logger.warn('Invalid chain metadata', result.error);
     throw new Error(`Invalid chain metadata: ${result.error.toString()}`);
@@ -40,8 +37,8 @@ export async function assembleChainMetadata(
   const mergedChainMetadata = mergeChainMetadataMap(registryChainMetadata, filesystemMetadata);
 
   const parsedRpcOverridesResult = tryParseJsonOrYaml(config.rpcOverrides);
-  // @ts-ignore
   const rpcOverrides = z
+    // @ts-ignore
     .record(RpcUrlSchema)
     .safeParse(parsedRpcOverridesResult.success && parsedRpcOverridesResult.data);
   if (config.rpcOverrides && !rpcOverrides.success) {
