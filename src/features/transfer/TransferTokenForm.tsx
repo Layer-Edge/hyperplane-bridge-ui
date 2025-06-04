@@ -19,6 +19,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ConnectAwareSubmitButton } from '../../components/buttons/ConnectAwareSubmitButton';
 import { SolidButton } from '../../components/buttons/SolidButton';
 import { TextField } from '../../components/input/TextField';
+import { Tooltip } from '../../components/tooltip/Tooltip';
 import { WARP_QUERY_PARAMS } from '../../consts/args';
 import { chainsRentEstimate } from '../../consts/chains';
 import { config } from '../../consts/config';
@@ -559,7 +560,9 @@ function ReviewDetails({ visible }: { visible: boolean }) {
                 {destinationToken?.addressOrDenom && (
                   <p className="flex justify-between text-[16px]">
                     <span className="min-w-[6.5rem] text-[#707997]">Remote Token</span>
-                    <span className="text-white">{`${destinationToken.addressOrDenom.slice(0, 4)}...${destinationToken.addressOrDenom.slice(-4)}`}</span>
+                    <Tooltip content={destinationToken.addressOrDenom}>
+                      <span className="text-white">{`${destinationToken.addressOrDenom.slice(0, 4)}...${destinationToken.addressOrDenom.slice(-4)}`}</span>
+                    </Tooltip>
                   </p>
                 )}
                 <p className="flex justify-between">
@@ -571,17 +574,21 @@ function ReviewDetails({ visible }: { visible: boolean }) {
                 {fees?.localQuote && fees.localQuote.amount > 0n && (
                   <p className="flex justify-between text-[16px]">
                     <span className="min-w-[6.5rem] text-[#707997]">Local Gas (est.)</span>
-                    <span className="text-white">{`${fees.localQuote.getDecimalFormattedAmount().toFixed(4) || '0'} ${
-                      fees.localQuote.token.symbol || ''
-                    }`}</span>
+                    <Tooltip content={fees.localQuote.getDecimalFormattedAmount()}>
+                      <span className="text-white">{`${fees.localQuote.getDecimalFormattedAmount().toFixed(4) || '0'} ${
+                        fees.localQuote.token.symbol || ''
+                      }`}</span>
+                    </Tooltip>
                   </p>
                 )}
                 {interchainQuote && interchainQuote.amount > 0n && (
                   <p className="flex justify-between text-[16px]">
                     <span className="min-w-[6.5rem] text-[#707997]">Interchain Gas</span>
-                    <span className="text-white">{`${interchainQuote.getDecimalFormattedAmount().toFixed(4) || '0'} ${
-                      interchainQuote.token.symbol || ''
-                    }`}</span>
+                    <Tooltip content={interchainQuote?.getDecimalFormattedAmount()}>
+                      <span className="text-white">{`${interchainQuote?.getDecimalFormattedAmount().toFixed(4) || '0'} ${
+                        interchainQuote?.token.symbol || ''
+                      }`}</span>
+                    </Tooltip>
                   </p>
                 )}
               </div>
