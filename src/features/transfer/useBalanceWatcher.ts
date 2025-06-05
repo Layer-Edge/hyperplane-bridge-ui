@@ -57,13 +57,19 @@ export function useRecipientBalanceWatcher(
           };
 
         case TransferStatus.SigningApprove:
+          return {
+            stage: TransferCompletionStage.INITIATED,
+            percentage: 10,
+            estimatedTimeRemaining: maxEstimatedTime - 10,
+            message: 'Please sign the approval transaction in your wallet...',
+          };
         case TransferStatus.SigningRevoke:
         case TransferStatus.SigningTransfer:
           return {
             stage: TransferCompletionStage.INITIATED,
             percentage: 10,
             estimatedTimeRemaining: maxEstimatedTime - 10,
-            message: 'Please sign the transaction in your wallet...',
+            message: 'Please sign the remote transfer transaction in your wallet...',
           };
 
         case TransferStatus.ConfirmingApprove:

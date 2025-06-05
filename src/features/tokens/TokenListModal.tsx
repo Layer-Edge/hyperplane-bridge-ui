@@ -79,7 +79,7 @@ function SearchBar({ search, setSearch }: { search: string; setSearch: (s: strin
         width={20}
         height={20}
         color="#707997"
-        className="absolute left-5 top-1/2 pb-1 opacity-50 -translate-y-1/2"
+        className="absolute left-5 top-1/2 -translate-y-1/2 pb-1 opacity-50"
       />
       <TextInput
         ref={inputRef}
@@ -182,7 +182,7 @@ export function TokenList({
                 chainMetadata.blockExplorers &&
                 chainMetadata.blockExplorers.length > 0 && (
                   <a
-                    href={`${chainMetadata.blockExplorers[0].url}/token/${t.token.addressOrDenom}`}
+                    href={`${chainMetadata.blockExplorers[0].url}/address/${t.token.addressOrDenom}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

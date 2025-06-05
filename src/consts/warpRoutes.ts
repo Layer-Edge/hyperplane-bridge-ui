@@ -9,7 +9,7 @@ export const warpRouteConfigs: WarpCoreConfig = {
       decimals: 18,
       symbol: 'EDGEN',
       logoURI: 'https://d3b1ytuf3cg77l.cloudfront.net/img/layeredge_logo.svg',
-      name: 'LayerEdge',
+      name: 'Ethereum',
       addressOrDenom: '0xB8bB85FD0836691a64aFc23199566F898a1d6f4a',
       collateralAddressOrDenom: '0xAa9806c938836627Ed1a41Ae871c7E1889AE02Ca',
       connections: [
