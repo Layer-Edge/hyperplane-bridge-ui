@@ -125,3 +125,11 @@ export function tryGetMsgIdFromTransferReceipt(
     return undefined;
   }
 }
+
+// Check if origin route is EDGEN and destination is bsc
+export function checkIsEdgenToBsc(origin: string, destination: string): boolean {
+  const EDGEN = 'edgenchain';
+  const BSC = 'bsc';
+
+  return origin === EDGEN && destination === BSC;
+}
