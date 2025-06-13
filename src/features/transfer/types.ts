@@ -37,6 +37,7 @@ export interface TransferContext {
   originTxHash?: string;
   msgId?: string;
   timestamp: number;
+  isGasless?: boolean;
 }
 
 // Enhanced transfer completion stages

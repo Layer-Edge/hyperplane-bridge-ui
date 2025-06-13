@@ -1,12 +1,10 @@
-import { TokenAmount, WarpCore } from '@hyperlane-xyz/sdk';
-import { ProtocolType, errorToString, isNullish, objKeys, toWei } from '@hyperlane-xyz/utils';
+import { TokenAmount } from '@hyperlane-xyz/sdk';
+import { isNullish, objKeys, toWei } from '@hyperlane-xyz/utils';
 import {
-  AccountInfo,
   IconButton,
   Modal,
   SpinnerIcon,
   WalletIcon,
-  getAccountAddressAndPubKey,
   useAccountAddressForChain,
   useAccounts,
   useModal,
@@ -15,8 +13,6 @@ import BigNumber from 'bignumber.js';
 import { Form, Formik, useFormikContext } from 'formik';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import { addChain, switchChain } from 'viem/actions';
-import { useConnectorClient } from 'wagmi';
 import { ConnectAwareSubmitButton } from '../../components/buttons/ConnectAwareSubmitButton';
 import { SolidButton } from '../../components/buttons/SolidButton';
 import { TextField } from '../../components/input/TextField';
@@ -49,14 +45,13 @@ import {
   getTokenIndexFromChains,
   useWarpCore,
 } from '../tokens/hooks';
-import { FreeBridgingModal } from './FreeBridgingModal';
 import Header from './Header';
 import { RecipientConfirmationModal } from './RecipientConfirmationModal';
 import { useFetchMaxAmount } from './maxAmount';
 import { TransferFormValues } from './types';
 import { useFeeQuotes } from './useFeeQuotes';
 import { useTokenTransfer } from './useTokenTransfer';
-import { checkIsEdgenToBsc } from './utils';
+import { validateForm } from './utils';
 
 export function TransferTokenForm() {
   const multiProvider = useMultiProvider();
@@ -85,23 +80,9 @@ export function TransferTokenForm() {
     isOpen: isConfirmationModalOpen,
   } = useModal();
 
-  const {
-    open: openFreeBridgingModal,
-    close: closeFreeBridgingModal,
-    isOpen: isFreeBridgingModalOpen,
-  } = useModal();
-
   const validate = (values: TransferFormValues) => validateForm(warpCore, values, accounts);
 
   const onSubmitForm = async (values: TransferFormValues) => {
-    const isEdgenToBsc = checkIsEdgenToBsc(values.origin, values.destination);
-
-    if (isEdgenToBsc) {
-      logger.debug('Initiating feeless bridge flow from Edgen to BSC');
-      openFreeBridgingModal();
-      return;
-    }
-
     logger.debug('Checking destination native balance for:', values.destination, values.recipient);
     const balance = await getDestinationNativeBalance(multiProvider, values);
     if (isNullish(balance)) return;
@@ -138,13 +119,6 @@ export function TransferTokenForm() {
             isReview={isReview}
             isValidating={isValidating}
             setIsReview={setIsReview}
-          />
-          <FreeBridgingModal
-            isOpen={isFreeBridgingModalOpen}
-            close={closeFreeBridgingModal}
-            onConfirm={() => {
-              closeFreeBridgingModal();
-            }}
           />
           <RecipientConfirmationModal
             isOpen={isConfirmationModalOpen}
@@ -315,11 +289,9 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
   const { balance } = useDestinationBalance(values);
   const [addressText, setAddressText] = useState(values.recipient);
   const multiProvider = useMultiProvider();
-  const { origin, destination } = values;
   const { originChainName } = useStore((s) => ({
     originChainName: s.originChainName,
   }));
-  const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
   const address = useAccountAddressForChain(multiProvider, originChainName);
   useEffect(() => {
     if (address && values.recipient === '') {
@@ -368,13 +340,6 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
           </SolidButton>
         </div>
       </Modal>
-      {isEdgenToBsc && (
-        <div className="relative mb-4 mt-4 flex w-full items-center justify-center">
-          <span className="text-[12px] font-[500] text-[#707997]">
-            This is a feeless bridge experience. You'll receive your funds within 24 hours.
-          </span>
-        </div>
-      )}
       <div className="flex justify-between pr-1">
         <label htmlFor="recipient" className="block pl-0.5 text-sm text-gray-600">
           Recipient address
@@ -388,11 +353,9 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
             ? values.recipient.slice(0, 6) + '...' + values.recipient.slice(-4)
             : values.recipient}
         </span>
-        {!isEdgenToBsc && (
-          <IconButton className="ml-2" onClick={() => setIsModalOpen(true)} disabled={isReview}>
-            <Image src={editIcon} width={20} height={20} alt="edit" />
-          </IconButton>
-        )}
+        <IconButton className="ml-2" onClick={() => setIsModalOpen(true)} disabled={isReview}>
+          <Image src={editIcon} width={20} height={20} alt="edit" />
+        </IconButton>
       </div>
     </div>
   );
@@ -416,12 +379,8 @@ function ButtonSection({
 }) {
   const { values } = useFormikContext<TransferFormValues>();
   const chainDisplayName = useChainDisplayName(values.destination);
-  const { origin, destination } = values;
-  const multiProvider = useMultiProvider();
-  const { data: client } = useConnectorClient();
 
   const isSanctioned = useIsAccountSanctioned();
-  const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
 
   const onDoneTransactions = () => {
     setIsReview(false);
@@ -434,56 +393,6 @@ function ButtonSection({
     setTransferLoading: s.setTransferLoading,
   }));
 
-  const handleChainSwitch = async () => {
-    if (!client || !isEdgenToBsc) return;
-
-    try {
-      const originChainMetadata = multiProvider.getChainMetadata(origin);
-      const originChainId = Number(originChainMetadata.chainId);
-
-      // First try to switch to the chain
-      try {
-        await switchChain(client, { id: originChainId });
-      } catch (switchError: any) {
-        // If the chain doesn't exist (error code 4902), add it first
-        if (switchError.code === 4902) {
-          await addChain(client, {
-            chain: {
-              id: originChainId,
-              name: originChainMetadata.displayName || originChainMetadata.name,
-              nativeCurrency: {
-                name: originChainMetadata.nativeToken?.name || 'LayerEdge',
-                symbol: originChainMetadata.nativeToken?.symbol || 'EDGEN',
-                decimals: originChainMetadata.nativeToken?.decimals || 18,
-              },
-              rpcUrls: {
-                default: {
-                  http: originChainMetadata.rpcUrls.map((url) => url.http),
-                },
-              },
-              blockExplorers: originChainMetadata.blockExplorers
-                ? {
-                    default: {
-                      name: originChainMetadata.blockExplorers[0].name,
-                      url: originChainMetadata.blockExplorers[0].url,
-                    },
-                  }
-                : undefined,
-            },
-          });
-
-          // Now try to switch to the chain again
-          await switchChain(client, { id: originChainId });
-        } else {
-          throw switchError;
-        }
-      }
-    } catch (error) {
-      console.error('Error switching chain:', error);
-      // You might want to show a toast error here
-    }
-  };
-
   const triggerTransactionsHandler = async () => {
     if (isSanctioned) {
       return;
@@ -494,31 +403,6 @@ function ButtonSection({
   };
 
   if (!isReview) {
-    // For Edgen->BSC transfers, check if user is on the correct chain
-    if (isEdgenToBsc) {
-      const originChainMetadata = multiProvider.getChainMetadata(origin);
-      const originChainId = Number(originChainMetadata.chainId);
-
-      // Check if user is currently on the Edgen chain
-      const currentChainId = client?.chain?.id;
-      const isOnCorrectChain = currentChainId === originChainId;
-
-      if (!isOnCorrectChain) {
-        return (
-          <SolidButton
-            type="button"
-            color="accent"
-            onClick={handleChainSwitch}
-            className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
-          >
-            <div className="z-1 relative">
-              Switch to {originChainMetadata.displayName || originChainMetadata.name}
-            </div>
-          </SolidButton>
-        );
-      }
-    }
-
     return (
       <ConnectAwareSubmitButton
         chainName={values.origin}
@@ -755,50 +639,4 @@ function useFormInitialValues(): TransferFormValues {
       recipient: address || '',
     };
   }, [warpCore, destinationQuery, originQuery, tokenIndex, defaultOriginToken, address]);
-}
-
-const insufficientFundsErrMsg = /insufficient.[funds|lamports]/i;
-const emptyAccountErrMsg = /AccountNotFound/i;
-
-async function validateForm(
-  warpCore: WarpCore,
-  values: TransferFormValues,
-  accounts: Record<ProtocolType, AccountInfo>,
-) {
-  try {
-    const { origin, destination, tokenIndex, amount, recipient } = values;
-    const token = getTokenByIndex(warpCore, tokenIndex);
-    if (!token) return { token: 'Token is required' };
-    const amountWei = toWei(amount, token.decimals);
-    const { address, publicKey: senderPubKey } = getAccountAddressAndPubKey(
-      warpCore.multiProvider,
-      origin,
-      accounts,
-    );
-
-    const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
-    const result = await warpCore.validateTransfer({
-      originTokenAmount: token.amount(amountWei),
-      destination,
-      recipient,
-      sender: address || '',
-      senderPubKey: await senderPubKey,
-    });
-    console.log({ result });
-    if (isEdgenToBsc) {
-      if (result?.amount === 'Invalid amount' || result?.amount === 'Insufficient balance') {
-        return result;
-      }
-      return null;
-    }
-    return result;
-  } catch (error: any) {
-    logger.error('Error validating form', error);
-    let errorMsg = errorToString(error, 40);
-    const fullError = `${errorMsg} ${error.message}`;
-    if (insufficientFundsErrMsg.test(fullError) || emptyAccountErrMsg.test(fullError)) {
-      errorMsg = 'Insufficient funds for gas fees';
-    }
-    return { form: errorMsg };
-  }
 }

@@ -95,6 +95,7 @@ export function useGaslessBridge(onDone?: () => void) {
           sender,
           recipient,
           amount,
+          isGasless: true,
         });
 
         updateTransferStatus(transferIndex, (transferStatus = TransferStatus.SigningTransfer));

@@ -187,6 +187,7 @@ function TransferSummary({
     timestamp,
     originTokenAddressOrDenom,
     originTxHash,
+    isGasless,
   } = transfer;
   const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
 
@@ -245,7 +246,7 @@ function TransferSummary({
               <span className="text-[12px] font-[500] text-[#707997]">
                 {` to ${getChainDisplayName(multiProvider, destination, true)}`}
               </span>
-              {isEdgenToBsc && (
+              {isGasless && (
                 <span className="ml-1 rounded-sm bg-blue-500 bg-opacity-20 px-1 py-0.5 text-[10px] font-medium text-blue-300">
                   Feeless
                 </span>

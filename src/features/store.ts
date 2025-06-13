@@ -66,6 +66,9 @@ export interface AppState {
   originChainName: ChainName;
   setOriginChainName: (originChainName: ChainName) => void;
   tokensBySymbolChainMap: Record<string, TokenChainMap>;
+
+  selectedBridgeTab: 'bridge' | 'gasless';
+  setSelectedBridgeTab: (tab: 'bridge' | 'gasless') => void;
 }
 
 export const useStore = create<AppState>()(
@@ -152,6 +155,11 @@ export const useStore = create<AppState>()(
         set(() => ({ originChainName }));
       },
       tokensBySymbolChainMap: {},
+
+      selectedBridgeTab: 'bridge',
+      setSelectedBridgeTab: (tab: 'bridge' | 'gasless') => {
+        set(() => ({ selectedBridgeTab: tab }));
+      },
     }),
 
     // Store config

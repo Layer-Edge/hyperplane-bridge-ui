@@ -104,7 +104,7 @@ function TokenButton({
           {token?.symbol || (isAutomatic ? 'No routes available' : 'Select Token')}
         </span>
       </div>
-      <ChevronIcon width={12} height={8} direction="s" color="#DBE2FA" />
+      {!disabled && <ChevronIcon width={12} height={8} direction="s" color="#DBE2FA" />}
     </button>
   );
 }

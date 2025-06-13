@@ -11,10 +11,10 @@ type Props = {
   label: string;
   onChange?: (id: ChainName, fieldName: string) => void;
   disabled?: boolean;
-  customListItemField: ChainSearchMenuProps['customListItemField'];
+  customListItemField?: ChainSearchMenuProps['customListItemField'];
 };
 
-export function ChainSelectField({ name, label, onChange, disabled, customListItemField }: Props) {
+export function ChainSelectField({ name, label, onChange, disabled }: Props) {
   const [field, , helpers] = useField<ChainName>(name);
   const { setFieldValue } = useFormikContext<TransferFormValues>();
 
@@ -53,13 +53,13 @@ export function ChainSelectField({ name, label, onChange, disabled, customListIt
             <span className="text-[18px] font-semibold text-white">{displayName}</span>
           </div>
         </div>
-        <ChevronIcon width={12} height={8} direction="s" color="#fff" />
+        {!disabled && <ChevronIcon width={12} height={8} direction="s" color="#fff" />}
       </button>
       <ChainSelectListModal
         isOpen={isModalOpen}
         close={() => setIsModalOpen(false)}
         onSelect={handleChange}
-        customListItemField={customListItemField}
+        // customListItemField={customListItemField}
       />
     </div>
   );

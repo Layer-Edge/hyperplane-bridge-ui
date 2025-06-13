@@ -58,6 +58,8 @@ export function FreeBridgingModal({
               <span className="text-[14px] font-[500] text-white">
                 {new Date().toLocaleString('en-US', {
                   timeZone: 'UTC',
+                  day: 'numeric',
+                  month: 'short',
                   hour: '2-digit',
                   minute: '2-digit',
                 })}
@@ -68,6 +70,8 @@ export function FreeBridgingModal({
               <span className="text-[14px] font-[500] text-white">
                 {new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString('en-US', {
                   timeZone: 'UTC',
+                  day: 'numeric',
+                  month: 'short',
                   hour: '2-digit',
                   minute: '2-digit',
                 })}
