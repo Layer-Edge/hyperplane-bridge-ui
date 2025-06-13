@@ -2,7 +2,6 @@ import { Modal } from '@hyperlane-xyz/widgets';
 import { useFormikContext } from 'formik';
 import { SolidButton } from '../../components/buttons/SolidButton';
 import { TransferFormValues } from './types';
-import { checkIsEdgenToBsc } from './utils';
 
 export function RecipientConfirmationModal({
   isOpen,
@@ -14,8 +13,6 @@ export function RecipientConfirmationModal({
   onConfirm: () => void;
 }) {
   const { values } = useFormikContext<TransferFormValues>();
-  const { origin, destination } = values;
-  const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
 
   return (
     <Modal
