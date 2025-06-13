@@ -43,13 +43,14 @@ export async function apiRequest<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      console.error(`API request failed: ${response.status} ${response.statusText}`);
+      return null as unknown as T;
     }
 
     return await response.json();
   } catch (error) {
     console.error('API request error:', error);
-    throw error;
+    return null as unknown as T;
   }
 }
 
