@@ -247,7 +247,7 @@ function TransferSummary({
               </span>
               {isEdgenToBsc && (
                 <span className="ml-1 rounded-sm bg-blue-500 bg-opacity-20 px-1 py-0.5 text-[10px] font-medium text-blue-300">
-                  Gasless
+                  Feeless
                 </span>
               )}
             </div>
@@ -256,11 +256,11 @@ function TransferSummary({
       </div>
       <div className="flex h-5 w-5">
         {isLoading || (!statusIcon && isEdgenToBsc) ? (
-          <SpinnerIcon className="-ml-1 mr-3 h-5 w-5" />
+          <SpinnerIcon color="white" className="-ml-1 mr-3 h-6 w-6" />
         ) : statusIcon ? (
           <Image src={statusIcon} width={25} height={25} alt="" />
         ) : (
-          <SpinnerIcon className="-ml-1 mr-3 h-5 w-5" />
+          <SpinnerIcon color="white" className="-ml-1 mr-3 h-6 w-6" />
         )}
       </div>
     </button>

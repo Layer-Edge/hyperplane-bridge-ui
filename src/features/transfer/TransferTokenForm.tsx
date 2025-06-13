@@ -15,6 +15,8 @@ import BigNumber from 'bignumber.js';
 import { Form, Formik, useFormikContext } from 'formik';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
+import { addChain, switchChain } from 'viem/actions';
+import { useConnectorClient } from 'wagmi';
 import { ConnectAwareSubmitButton } from '../../components/buttons/ConnectAwareSubmitButton';
 import { SolidButton } from '../../components/buttons/SolidButton';
 import { TextField } from '../../components/input/TextField';
@@ -415,8 +417,11 @@ function ButtonSection({
   const { values } = useFormikContext<TransferFormValues>();
   const chainDisplayName = useChainDisplayName(values.destination);
   const { origin, destination } = values;
+  const multiProvider = useMultiProvider();
+  const { data: client } = useConnectorClient();
 
   const isSanctioned = useIsAccountSanctioned();
+  const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
 
   const onDoneTransactions = () => {
     setIsReview(false);
@@ -429,16 +434,91 @@ function ButtonSection({
     setTransferLoading: s.setTransferLoading,
   }));
 
+  const handleChainSwitch = async () => {
+    if (!client || !isEdgenToBsc) return;
+
+    try {
+      const originChainMetadata = multiProvider.getChainMetadata(origin);
+      const originChainId = Number(originChainMetadata.chainId);
+
+      // First try to switch to the chain
+      try {
+        await switchChain(client, { id: originChainId });
+      } catch (switchError: any) {
+        // If the chain doesn't exist (error code 4902), add it first
+        if (switchError.code === 4902) {
+          await addChain(client, {
+            chain: {
+              id: originChainId,
+              name: originChainMetadata.displayName || originChainMetadata.name,
+              nativeCurrency: {
+                name: originChainMetadata.nativeToken?.name || 'LayerEdge',
+                symbol: originChainMetadata.nativeToken?.symbol || 'EDGEN',
+                decimals: originChainMetadata.nativeToken?.decimals || 18,
+              },
+              rpcUrls: {
+                default: {
+                  http: originChainMetadata.rpcUrls.map((url) => url.http),
+                },
+              },
+              blockExplorers: originChainMetadata.blockExplorers
+                ? {
+                    default: {
+                      name: originChainMetadata.blockExplorers[0].name,
+                      url: originChainMetadata.blockExplorers[0].url,
+                    },
+                  }
+                : undefined,
+            },
+          });
+
+          // Now try to switch to the chain again
+          await switchChain(client, { id: originChainId });
+        } else {
+          throw switchError;
+        }
+      }
+    } catch (error) {
+      console.error('Error switching chain:', error);
+      // You might want to show a toast error here
+    }
+  };
+
   const triggerTransactionsHandler = async () => {
     if (isSanctioned) {
       return;
     }
     setIsReview(false);
-    setTransferLoading(true);
+    setTimeout(() => setTransferLoading(true), 2000);
     await triggerTransactions(values);
   };
 
   if (!isReview) {
+    // For Edgen->BSC transfers, check if user is on the correct chain
+    if (isEdgenToBsc) {
+      const originChainMetadata = multiProvider.getChainMetadata(origin);
+      const originChainId = Number(originChainMetadata.chainId);
+
+      // Check if user is currently on the Edgen chain
+      const currentChainId = client?.chain?.id;
+      const isOnCorrectChain = currentChainId === originChainId;
+
+      if (!isOnCorrectChain) {
+        return (
+          <SolidButton
+            type="button"
+            color="accent"
+            onClick={handleChainSwitch}
+            className="gradient-border-button relative mt-4 w-full px-[32px] py-[18px] font-[700] text-[#050917]"
+          >
+            <div className="z-1 relative">
+              Switch to {originChainMetadata.displayName || originChainMetadata.name}
+            </div>
+          </SolidButton>
+        );
+      }
+    }
+
     return (
       <ConnectAwareSubmitButton
         chainName={values.origin}

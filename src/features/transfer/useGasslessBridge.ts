@@ -21,6 +21,7 @@ import { getEthersSigner } from './useEthersSigner';
 const GASLESS_BRIDGE_ADDRESS = '0xaA713C497e491e615283b9B127f0390839611287';
 const CHAIN_MISMATCH_ERROR = 'ChainMismatchError';
 
+// Visually, we have used the term "feeless" instead of "gasless" for our users
 export function useGaslessBridge(onDone?: () => void) {
   const { transfers, addTransfer, updateTransferStatus } = useStore((s) => ({
     transfers: s.transfers,
