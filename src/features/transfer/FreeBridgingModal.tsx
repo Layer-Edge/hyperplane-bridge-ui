@@ -1,6 +1,10 @@
 // src/features/transfer/FreeBridgingModal.tsx
 import { Modal } from '@hyperlane-xyz/widgets';
+import { useFormikContext } from 'formik';
 import { SolidButton } from '../../components/buttons/SolidButton';
+import { useStore } from '../store';
+import { TransferFormValues } from './types';
+import { useGaslessBridge } from './useGasslessBridge';
 
 export function FreeBridgingModal({
   isOpen,
@@ -11,6 +15,20 @@ export function FreeBridgingModal({
   close: () => void;
   onConfirm: () => void;
 }) {
+  const { values } = useFormikContext<TransferFormValues>();
+  const { executeGasslessBridge, isLoading } = useGaslessBridge(onConfirm);
+  const { setTransferLoading } = useStore((s) => ({
+    setTransferLoading: s.setTransferLoading,
+  }));
+
+  const handleConfirm = async () => {
+    close();
+    setTransferLoading(true);
+    await executeGasslessBridge(values);
+    setTransferLoading(false);
+    onConfirm();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -87,10 +105,8 @@ export function FreeBridgingModal({
           <SolidButton
             type="button"
             color="accent"
-            onClick={() => {
-              close();
-              onConfirm();
-            }}
+            onClick={handleConfirm}
+            disabled={isLoading}
             className="gradient-border-button flex-1 px-[32px] py-[18px] font-[700] text-[#050917]"
           >
             <div className="z-1 relative">Confirm Bridge</div>

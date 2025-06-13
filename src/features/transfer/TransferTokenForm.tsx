@@ -92,16 +92,19 @@ export function TransferTokenForm() {
   const validate = (values: TransferFormValues) => validateForm(warpCore, values, accounts);
 
   const onSubmitForm = async (values: TransferFormValues) => {
+    const isEdgenToBsc = checkIsEdgenToBsc(values.origin, values.destination);
+
+    if (isEdgenToBsc) {
+      logger.debug('Initiating feeless bridge flow from Edgen to BSC');
+      openFreeBridgingModal();
+      return;
+    }
+
     logger.debug('Checking destination native balance for:', values.destination, values.recipient);
     const balance = await getDestinationNativeBalance(multiProvider, values);
     if (isNullish(balance)) return;
     else if (balance > 0n) {
       logger.debug('Reviewing transfer form values for:', values.origin, values.destination);
-      const isEdgenToBsc = checkIsEdgenToBsc(values.origin, values.destination);
-      if (isEdgenToBsc) {
-        openFreeBridgingModal();
-        return;
-      }
       setIsReview(true);
     } else {
       logger.debug('Recipient has no balance on destination. Confirming address.');
@@ -366,7 +369,7 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
       {isEdgenToBsc && (
         <div className="relative mb-4 mt-4 flex w-full items-center justify-center">
           <span className="text-[12px] font-[500] text-[#707997]">
-            This is a gasless bridge experience. You'll receive your funds within 24 hours.
+            This is a feeless bridge experience. You'll receive your funds within 24 hours.
           </span>
         </div>
       )}
@@ -383,9 +386,11 @@ function RecipientSection({ isReview }: { isReview: boolean }) {
             ? values.recipient.slice(0, 6) + '...' + values.recipient.slice(-4)
             : values.recipient}
         </span>
-        <IconButton className="ml-2" onClick={() => setIsModalOpen(true)} disabled={isReview}>
-          <Image src={editIcon} width={20} height={20} alt="edit" />
-        </IconButton>
+        {!isEdgenToBsc && (
+          <IconButton className="ml-2" onClick={() => setIsModalOpen(true)} disabled={isReview}>
+            <Image src={editIcon} width={20} height={20} alt="edit" />
+          </IconButton>
+        )}
       </div>
     </div>
   );
@@ -409,6 +414,7 @@ function ButtonSection({
 }) {
   const { values } = useFormikContext<TransferFormValues>();
   const chainDisplayName = useChainDisplayName(values.destination);
+  const { origin, destination } = values;
 
   const isSanctioned = useIsAccountSanctioned();
 
@@ -698,8 +704,9 @@ async function validateForm(
       sender: address || '',
       senderPubKey: await senderPubKey,
     });
+    console.log({ result });
     if (isEdgenToBsc) {
-      if (result?.amount === 'Invalid amount') {
+      if (result?.amount === 'Invalid amount' || result?.amount === 'Insufficient balance') {
         return result;
       }
       return null;

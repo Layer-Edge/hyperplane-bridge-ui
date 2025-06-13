@@ -128,8 +128,26 @@ export function tryGetMsgIdFromTransferReceipt(
 
 // Check if origin route is EDGEN and destination is bsc
 export function checkIsEdgenToBsc(origin: string, destination: string): boolean {
-  const EDGEN = 'edgenchain';
-  const BSC = 'bsc';
+  const EDGEN = ['edgenchain', 'edgentestnet'];
+  const BSC = ['bsc', 'bsctestnet'];
 
-  return origin === EDGEN && destination === BSC;
+  return EDGEN.includes(origin) && BSC.includes(destination);
+}
+
+/**
+ * Maps the bridge API status to our app's TransferStatus
+ * @param apiStatus The status from the bridge API
+ * @returns Corresponding TransferStatus
+ */
+export function mapBridgeStatusToTransferStatus(apiStatus: string): TransferStatus {
+  switch (apiStatus) {
+    case 'distributed':
+      return TransferStatus.Delivered;
+    case 'pending':
+      return TransferStatus.ConfirmedTransfer;
+    case 'failed':
+      return TransferStatus.Failed;
+    default:
+      return TransferStatus.ConfirmedTransfer;
+  }
 }

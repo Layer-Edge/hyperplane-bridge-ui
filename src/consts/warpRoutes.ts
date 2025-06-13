@@ -82,6 +82,41 @@ export const warpRouteConfigs: WarpCoreConfig = {
         },
       ],
     },
+    // Testnets
+    {
+      chainName: 'bsctestnet',
+      standard: TokenStandard.EvmHypSynthetic,
+      decimals: 18,
+      symbol: 'EDGEN',
+      logoURI: 'https://d3b1ytuf3cg77l.cloudfront.net/img/layeredge_logo.svg',
+      name: 'LayerEdge',
+      addressOrDenom: '0x0bd1e41fD7fBC3A41daA33fd9B8eE36D832C3677',
+      connections: [
+        // {
+        //   token: 'ethereum|0x35c8cD01312257e98c70c2e6cdC1a3aE6e338769',
+        // },
+        {
+          token: 'ethereum|edgentestnet|0x37ec16e00C39a84A082dFAb74Af450DedD50Bf77',
+        },
+      ],
+    },
+    {
+      chainName: 'edgentestnet',
+      standard: TokenStandard.EvmHypNative,
+      decimals: 18,
+      symbol: 'EDGEN',
+      logoURI: 'https://d3b1ytuf3cg77l.cloudfront.net/img/layeredge_logo.svg',
+      name: 'LayerEdge',
+      addressOrDenom: '0x37ec16e00C39a84A082dFAb74Af450DedD50Bf77',
+      connections: [
+        // {
+        //   token: 'ethereum|0x35c8cD01312257e98c70c2e6cdC1a3aE6e338769',
+        // },
+        {
+          token: 'ethereum|bsctestnet|0x0bd1e41fD7fBC3A41daA33fd9B8eE36D832C3677',
+        },
+      ],
+    },
   ],
   options: {},
 };

@@ -11,7 +11,7 @@ const Header = ({ setIsSideBarOpen, isSideBarOpen }) => {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="gradient-text">{isEdgenToBsc ? 'Gasless Bridge' : 'Bridge'}</p>
+        <p className="gradient-text">{isEdgenToBsc ? 'Feeless Bridge' : 'Bridge'}</p>
         <IconButton
           className={`rounded-full bg-[#DBE2FA08] p-1`}
           title="History"
@@ -22,7 +22,7 @@ const Header = ({ setIsSideBarOpen, isSideBarOpen }) => {
       </div>
       {isEdgenToBsc && (
         <div className="flex items-center justify-center pb-4">
-          <p className="text-sm text-white">Gasless Bridge from EDGEN to BSC chain</p>
+          <p className="text-sm text-white">Feeless Bridge from EDGEN to BSC chain</p>
         </div>
       )}
     </div>

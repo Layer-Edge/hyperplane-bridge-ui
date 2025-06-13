@@ -65,7 +65,13 @@ export const chains: ChainMap<
     name: 'edgenchain',
     displayName: 'Edgen Chain',
     nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
-    rpcUrls: [{ http: 'https://rpc.layeredge.io' },{ http: 'https://rpc2.layeredge.io' },{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{http: 'https://layeredge.rpc.subquery.network/public'}],
+    rpcUrls: [
+      { http: 'https://rpc.layeredge.io' },
+      { http: 'https://rpc2.layeredge.io' },
+      { http: 'https://layeredge-mainnet-evm.itrocket.net' },
+      { http: 'https://layeredge-mainnet-evm.itrocket.net' },
+      { http: 'https://layeredge.rpc.subquery.network/public' },
+    ],
     blockExplorers: [
       {
         name: 'EdgeExplorer',
@@ -81,6 +87,54 @@ export const chains: ChainMap<
     },
     mailbox: '0xef07FAE1a6912C8d333F72E01A03CE3bb18E12a1',
     interchainGasPaymaster: '0x8badaacd60824c5db01e9c3616e4906ca90b7c02',
+    logoURI: '/edge-logo.png',
+  },
+  bsctestnet: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 97,
+    domainId: 97,
+    name: 'bsctestnet',
+    displayName: 'BSC Testnet',
+    nativeToken: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+    rpcUrls: [{ http: 'https://data-seed-prebsc-1-s1.binance.org:8545' }],
+    blockExplorers: [
+      {
+        name: 'BscScan',
+        url: 'https://testnet.bscscan.com',
+        apiUrl: 'https://api-testnet.bscscan.com/api',
+        family: ExplorerFamily.Etherscan,
+      },
+    ],
+    blocks: {
+      confirmations: 1,
+      reorgPeriod: 9,
+      estimateBlockTime: 3,
+    },
+    mailbox: '0xF9F6F5646F478d5ab4e20B0F910C92F1CCC9Cc6D',
+    logoURI: '/bsc-logo.svg',
+  },
+  edgentestnet: {
+    protocol: ProtocolType.Ethereum,
+    chainId: 3456,
+    domainId: 3456,
+    name: 'edgentestnet',
+    displayName: 'EdgeTestnet',
+    nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
+    rpcUrls: [{ http: 'https://testnet-rpc.layeredge.io' }],
+    blockExplorers: [
+      {
+        name: 'EdgeExplorer',
+        url: 'https://testnet-explorer.layeredge.io',
+        apiUrl: 'https://testnet-explorer.layeredge.io/api',
+        family: ExplorerFamily.Blockscout,
+      },
+    ],
+    blocks: {
+      confirmations: 1,
+      reorgPeriod: 1,
+      estimateBlockTime: 2,
+    },
+    mailbox: '0x9Af611a6Fa2DAC0C3C63D1B1b448Bbc44Bd5b8a3',
     logoURI: '/edge-logo.png',
   },
 };
