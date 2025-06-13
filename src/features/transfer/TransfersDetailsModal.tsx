@@ -28,6 +28,7 @@ import { useMultiProvider } from '../chains/hooks';
 import { hasPermissionlessChain } from '../chains/utils';
 import { useDestinationBalance } from '../tokens/balances';
 import { getInitialTokenIndex, tryFindToken, useWarpCore } from '../tokens/hooks';
+import { useTransferData } from './hooks';
 import {
   TransferCompletionStage,
   TransferContext,
@@ -35,7 +36,13 @@ import {
   TransferStatus,
 } from './types';
 import { useRecipientBalanceWatcher } from './useBalanceWatcher';
-import { getTransferStatusLabel, isTransferFailed, isTransferSent } from './utils';
+import {
+  checkIsEdgenToBsc,
+  getTransferStatusLabel,
+  isTransferFailed,
+  isTransferSent,
+  mapBridgeStatusToTransferStatus,
+} from './utils';
 
 // Progress Bar Component
 export function TransferProgressBar({
@@ -107,7 +114,7 @@ export function TransfersDetailsModal({
   const [toUrl, setToUrl] = useState<string>('');
   const [originTxUrl, setOriginTxUrl] = useState<string>('');
 
-  // Add the missing state variables
+  // Add state for balance confirmation
   const [balanceConfirmedSuccess, setBalanceConfirmedSuccess] = useState(false);
 
   const {
@@ -122,6 +129,44 @@ export function TransfersDetailsModal({
     msgId,
     timestamp,
   } = transfer || {};
+
+  // Check if this is an Edgen to BSC route
+  const isEdgenToBsc = useMemo(() => {
+    return checkIsEdgenToBsc(origin, destination);
+  }, [origin, destination]);
+
+  // Use the custom hook to fetch transfer data
+  const { data: bridgeTransferData, isLoading: isLoadingBridgeData } = useTransferData(
+    originTxHash,
+    isEdgenToBsc && isOpen,
+  );
+
+  // Map the bridge API status and transfer status together for Edgen to BSC transfers
+  const effectiveStatus = useMemo(() => {
+    // For Edgen to BSC, show the original transfer status during signing/preparing stages
+    if (isEdgenToBsc) {
+      // If we're in an early stage (preparing, signing, confirming), use the transfer status
+      if (
+        status === TransferStatus.Preparing ||
+        status === TransferStatus.SigningTransfer ||
+        status === TransferStatus.ConfirmingTransfer
+      ) {
+        return status;
+      }
+
+      // If we have bridge data and we're past the initial stages, use the bridge status
+      if (bridgeTransferData) {
+        return mapBridgeStatusToTransferStatus(bridgeTransferData.status);
+      }
+
+      // If we're in confirmed stage but no bridge data yet, keep showing confirmed
+      if (status === TransferStatus.ConfirmedTransfer) {
+        return status;
+      }
+    }
+
+    return status;
+  }, [isEdgenToBsc, bridgeTransferData, status]);
 
   const warpCore = useWarpCore();
   const params = getQueryParams();
@@ -158,7 +203,7 @@ export function TransfersDetailsModal({
     destination,
     recipient,
     recipientBalance,
-    status,
+    effectiveStatus, // Use the effective status that might come from bridge API
     setBalanceConfirmedSuccessCallback,
   );
 
@@ -191,18 +236,111 @@ export function TransfersDetailsModal({
   const token = tryFindToken(warpCore, origin, originTokenAddressOrDenom);
   const isPermissionlessRoute = hasPermissionlessChain(multiProvider, [destination, origin]);
 
-  // Enhanced logic: use transferCompleted from balance watcher as the primary success indicator
-  const isSent = transferCompleted || (isTransferSent(status) && !recipientBalance);
-  const isFailed = isTransferFailed(status) && !transferCompleted;
-  const isFinal = transferCompleted || isSent || isFailed;
+  // Enhanced logic: consider both normal transfer completion and bridge API status
+  const isSent =
+    transferCompleted ||
+    (isTransferSent(effectiveStatus) && !recipientBalance) ||
+    (isEdgenToBsc && bridgeTransferData?.status === 'distributed');
 
-  const statusDescription = getTransferStatusLabel(
-    balanceConfirmedSuccess ? TransferStatus.ConfirmedTransfer : status,
+  const isFailed =
+    (isTransferFailed(effectiveStatus) && !transferCompleted) ||
+    (isEdgenToBsc && bridgeTransferData?.status === 'failed');
+
+  // Determine if transfer is in a final state
+  const isFinal =
+    transferCompleted ||
+    isSent ||
+    isFailed ||
+    (isEdgenToBsc &&
+      (bridgeTransferData?.status === 'distributed' || bridgeTransferData?.status === 'failed'));
+
+  // Check if the transfer is in early stages (preparing, signing, confirming)
+  const isEarlyStage =
+    effectiveStatus === TransferStatus.Preparing ||
+    effectiveStatus === TransferStatus.SigningTransfer ||
+    effectiveStatus === TransferStatus.ConfirmingTransfer;
+
+  // In-progress state for Edgen-BSC when transaction confirmed but distribution pending
+  const isPendingDistribution =
+    isEdgenToBsc &&
+    effectiveStatus === TransferStatus.ConfirmedTransfer &&
+    (!bridgeTransferData || bridgeTransferData.status === 'pending');
+
+  // Get the status description based on bridge data if available
+  const statusDescription = useMemo(() => {
+    if (isEdgenToBsc) {
+      // For early stages, show appropriate wallet action messages
+      if (effectiveStatus === TransferStatus.Preparing) {
+        return 'Preparing transaction...';
+      } else if (effectiveStatus === TransferStatus.SigningTransfer) {
+        return `Please sign the transaction with your ${connectorName}`;
+      } else if (effectiveStatus === TransferStatus.ConfirmingTransfer) {
+        return 'Confirming transaction...';
+      }
+
+      // For confirmed or later stages, use bridge data status
+      if (bridgeTransferData) {
+        return getEdgenToBscStatusDescription(bridgeTransferData.status);
+      } else if (effectiveStatus === TransferStatus.ConfirmedTransfer) {
+        return 'Transaction confirmed. Waiting for distribution...';
+      }
+    }
+
+    return getTransferStatusLabel(
+      balanceConfirmedSuccess ? TransferStatus.ConfirmedTransfer : effectiveStatus,
+      connectorName,
+      isPermissionlessRoute,
+      isAccountReady,
+    );
+  }, [
+    isEdgenToBsc,
+    effectiveStatus,
+    bridgeTransferData,
+    balanceConfirmedSuccess,
     connectorName,
     isPermissionlessRoute,
     isAccountReady,
-  );
-  const showSignWarning = useSignIssueWarning(status);
+  ]);
+
+  // Calculate progress for feeless bridge stages
+  const gaslessBridgeProgress = useMemo(() => {
+    if (!isEdgenToBsc) return null;
+
+    // Define progress for each early stage
+    if (effectiveStatus === TransferStatus.Preparing) {
+      return {
+        message: 'Preparing your transfer',
+        percentage: 10,
+        stage: TransferCompletionStage.INITIATED,
+        estimatedTimeRemaining: 10,
+      };
+    } else if (effectiveStatus === TransferStatus.SigningTransfer) {
+      return {
+        message: 'Please sign with your wallet',
+        percentage: 20,
+        stage: TransferCompletionStage.INITIATED,
+        estimatedTimeRemaining: 30,
+      };
+    } else if (effectiveStatus === TransferStatus.ConfirmingTransfer) {
+      return {
+        message: 'Confirming transaction',
+        percentage: 30,
+        stage: TransferCompletionStage.TRANSACTION_SENT,
+        estimatedTimeRemaining: 20,
+      };
+    } else if (isPendingDistribution) {
+      return {
+        message: 'Waiting for distribution',
+        percentage: 50,
+        stage: TransferCompletionStage.HYPERLANE_PROCESSING,
+        estimatedTimeRemaining: undefined, // Unknown time for distribution
+      };
+    }
+
+    return null;
+  }, [isEdgenToBsc, effectiveStatus, isPendingDistribution]);
+
+  const showSignWarning = useSignIssueWarning(effectiveStatus);
 
   const date = useMemo(
     () => (timestamp ? formatTimestamp(timestamp) : formatTimestamp(new Date().getTime())),
@@ -252,16 +390,38 @@ export function TransfersDetailsModal({
         </div>
       </div>
 
-      {/* Progress Section */}
-      {!isFinal && isMonitoring && (
+      {/* Progress Section - Show for all in-progress transfers including early stages of Edgen-BSC */}
+      {!isFinal && (
         <div className="mb-4 mt-6">
-          <TransferProgressBar progress={progress} className="mb-4" />
+          {/* For Edgen-BSC early stages, show custom progress */}
+          {isEdgenToBsc && gaslessBridgeProgress && (
+            <TransferProgressBar progress={gaslessBridgeProgress} className="mb-4" />
+          )}
+
+          {/* For non-Edgen-BSC or when no gasless progress available, use regular progress */}
+          {!isEdgenToBsc && isMonitoring && (
+            <TransferProgressBar progress={progress} className="mb-4" />
+          )}
 
           {/* Live Status Indicator */}
           <div className="flex items-center justify-center space-x-2">
             <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
-            <span className="text-sm text-gray-400">Monitoring transfer progress...</span>
+            <span className="text-sm text-gray-400">
+              {isEdgenToBsc && isEarlyStage
+                ? 'Processing your transaction...'
+                : isEdgenToBsc && isPendingDistribution
+                  ? 'Waiting for distribution (up to 24 hours)...'
+                  : 'Monitoring transfer progress...'}
+            </span>
           </div>
+        </div>
+      )}
+
+      {/* Show loading indicator when fetching bridge data */}
+      {isEdgenToBsc && isLoadingBridgeData && !isEarlyStage && !isFinal && (
+        <div className="mb-4 mt-6 flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <span className="ml-2 text-sm text-gray-400">Checking transfer status...</span>
         </div>
       )}
 
@@ -272,19 +432,26 @@ export function TransfersDetailsModal({
             Your Last Transfer Was
             {isSent ? (
               <span className="ml-1 text-[#00FF6F]">
-                {balanceConfirmedSuccess ? ' Successfully Completed' : ' Successful'}
+                {balanceConfirmedSuccess ||
+                (isEdgenToBsc && bridgeTransferData?.status === 'distributed')
+                  ? ' Successfully Completed'
+                  : ' Successful'}
               </span>
             ) : (
               <span className="ml-1 text-[#FF8787]"> Unsuccessful</span>
             )}
           </p>
 
-          {balanceConfirmedSuccess && (
+          {(balanceConfirmedSuccess ||
+            (isEdgenToBsc && bridgeTransferData?.status === 'distributed')) && (
             <div className="mb-2 text-center">
               <p className="text-[14px] font-[400] text-[#00FF6F]">
-                ✓ Funds confirmed in recipient wallet
+                ✓{' '}
+                {isEdgenToBsc
+                  ? 'Funds have been distributed to your wallet'
+                  : 'Funds confirmed in recipient wallet'}
               </p>
-              {timestamp && (
+              {timestamp && !isEdgenToBsc && (
                 <p className="mt-1 text-xs text-gray-400">
                   Transfer completed in {Math.round((Date.now() - timestamp) / 1000)}s
                 </p>
@@ -307,8 +474,18 @@ export function TransfersDetailsModal({
                 url={originTxUrl}
               />
             )}
-            {msgId && <TransferProperty name="Message ID" value={msgId} />}
-            {explorerLink && (
+            {/* Show BSC transaction hash if available from bridge API */}
+            {isEdgenToBsc && bridgeTransferData?.binanceTxHash && (
+              <TransferProperty
+                name="BSC Transaction Hash"
+                value={bridgeTransferData.binanceTxHash}
+                url={multiProvider.tryGetExplorerTxUrl('bsc', {
+                  hash: bridgeTransferData.binanceTxHash,
+                })}
+              />
+            )}
+            {msgId && !isEdgenToBsc && <TransferProperty name="Message ID" value={msgId} />}
+            {explorerLink && !isEdgenToBsc && (
               <div className="flex justify-between">
                 <span className="text-xs leading-normal tracking-wider text-gray-350">
                   <a
@@ -322,25 +499,55 @@ export function TransfersDetailsModal({
                 </span>
               </div>
             )}
+            {/* Show estimated processing time for pending Edgen to BSC transfers */}
+            {isEdgenToBsc && bridgeTransferData?.status === 'pending' && (
+              <div className="mt-2 rounded-md bg-blue-500 bg-opacity-10 p-2 text-center">
+                <p className="text-sm text-blue-300">
+                  Your transfer is being processed. Funds will be distributed within 24 hours.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-4">
           <div
-            className={`mt-5 text-center text-[24px] font-[500] ${isFailed ? 'text-red-600' : 'text-[#707997]'}`}
+            className={`mt-5 text-center text-[24px] font-[500] ${
+              isFailed ? 'text-red-600' : isEarlyStage ? 'text-blue-400' : 'text-[#707997]'
+            }`}
           >
-            {progress.message || statusDescription}
+            {statusDescription}
           </div>
-          {showSignWarning && (
+          {showSignWarning && effectiveStatus === TransferStatus.SigningTransfer && (
             <div className="mt-3 text-center text-sm text-gray-600">
               If your wallet does not show a transaction request or never confirms, please try the
               transfer again.
+            </div>
+          )}
+          {isEdgenToBsc && isPendingDistribution && (
+            <div className="mt-3 text-center text-sm text-gray-600">
+              Your transaction has been confirmed on Edgen. Tokens will be distributed to BSC within
+              24 hours.
             </div>
           )}
         </div>
       )}
     </Modal>
   );
+}
+
+// Helper function to get status description for Edgen to BSC transfers
+function getEdgenToBscStatusDescription(status: string): string {
+  switch (status) {
+    case 'distributed':
+      return 'Your transfer has been successfully distributed to BSC';
+    case 'pending':
+      return 'Your transfer is being processed and will be distributed within 24 hours';
+    case 'failed':
+      return 'Your transfer could not be processed. Please contact support.';
+    default:
+      return 'Processing your transfer...';
+  }
 }
 
 // Timeline component remains the same but can now show balance-confirmed status
@@ -384,7 +591,15 @@ export function Timeline({
   );
 }
 
-function TransferProperty({ name, value, url }: { name: string; value: string; url?: string }) {
+function TransferProperty({
+  name,
+  value,
+  url,
+}: {
+  name: string;
+  value: string;
+  url?: string | null;
+}) {
   return (
     <div>
       <div className="flex w-full items-center justify-between">

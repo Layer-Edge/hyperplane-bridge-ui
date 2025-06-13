@@ -40,7 +40,8 @@ export function useTokenTransfer(onDone?: () => void) {
 
   // TODO implement cancel callback for when modal is closed?
   const triggerTransactions = useCallback(
-    (values: TransferFormValues) =>
+    (values: TransferFormValues) => {
+      updateTransferStatus(transferIndex, TransferStatus.Preparing);
       executeTransfer({
         warpCore,
         values,
@@ -52,7 +53,8 @@ export function useTokenTransfer(onDone?: () => void) {
         updateTransferStatus,
         setIsLoading,
         onDone,
-      }),
+      });
+    },
     [
       warpCore,
       transferIndex,

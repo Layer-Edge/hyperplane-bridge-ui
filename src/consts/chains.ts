@@ -65,7 +65,13 @@ export const chains: ChainMap<
     name: 'edgenchain',
     displayName: 'Edgen Chain',
     nativeToken: { name: 'LayerEdge', symbol: 'EDGEN', decimals: 18 },
-    rpcUrls: [{ http: 'https://rpc.layeredge.io' },{ http: 'https://rpc2.layeredge.io' },{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{ http: 'https://layeredge-mainnet-evm.itrocket.net'},{http: 'https://layeredge.rpc.subquery.network/public'}],
+    rpcUrls: [
+      { http: 'https://rpc.layeredge.io' },
+      { http: 'https://rpc2.layeredge.io' },
+      { http: 'https://layeredge-mainnet-evm.itrocket.net' },
+      { http: 'https://layeredge-mainnet-evm.itrocket.net' },
+      { http: 'https://layeredge.rpc.subquery.network/public' },
+    ],
     blockExplorers: [
       {
         name: 'EdgeExplorer',

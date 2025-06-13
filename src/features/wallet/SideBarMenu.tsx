@@ -16,8 +16,9 @@ import { getChainDisplayName } from '../chains/utils';
 import { useStore } from '../store';
 import { tryFindToken, useWarpCore } from '../tokens/hooks';
 import { TransfersDetailsModal } from '../transfer/TransfersDetailsModal';
-import { TransferContext } from '../transfer/types';
-import { getIconByTransferStatus, STATUSES_WITH_ICON } from '../transfer/utils';
+import { useTransferData } from '../transfer/hooks';
+import { TransferContext, TransferStatus } from '../transfer/types';
+import { checkIsEdgenToBsc, getIconByTransferStatus, STATUSES_WITH_ICON } from '../transfer/utils';
 
 export function SideBarMenu({
   // onClickConnectWallet,
@@ -37,12 +38,14 @@ export function SideBarMenu({
   const { readyAccounts } = useAccounts(multiProvider);
   const disconnectFns = useDisconnectFns();
   const walletDetails = useWalletDetails();
-  const { transfers, resetTransfers, transferLoading } = useStore((s) => ({
+  const { transfers, resetTransfers, transferLoading, updateTransferStatus } = useStore((s) => ({
     transfers: s.transfers,
     resetTransfers: s.resetTransfers,
+    updateTransferStatus: s.updateTransferStatus,
     transferLoading: s.transferLoading,
     originChainName: s.originChainName,
   }));
+  const transferIndex = transfers.length;
 
   useEffect(() => {
     if (!didMountRef.current) {
@@ -133,6 +136,7 @@ export function SideBarMenu({
                         setSelectedTransfer(t);
                         setIsModalOpen(true);
                       }}
+                      isVisible={isMenuOpen}
                     />
                   ))}
               </div>
@@ -154,6 +158,7 @@ export function SideBarMenu({
           onClose={() => {
             setIsModalOpen(false);
             setSelectedTransfer(null);
+            updateTransferStatus(transferIndex, TransferStatus.Preparing);
           }}
           transfer={selectedTransfer}
         />
@@ -165,16 +170,61 @@ export function SideBarMenu({
 function TransferSummary({
   transfer,
   onClick,
+  isVisible,
 }: {
   transfer: TransferContext;
   onClick: () => void;
+  isVisible: boolean;
 }) {
   const multiProvider = useMultiProvider();
   const warpCore = useWarpCore();
 
-  const { amount, origin, destination, status, timestamp, originTokenAddressOrDenom } = transfer;
+  const {
+    amount,
+    origin,
+    destination,
+    status,
+    timestamp,
+    originTokenAddressOrDenom,
+    originTxHash,
+  } = transfer;
+  const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
+
+  // Use the custom hook to fetch transfer data
+  const { data: bridgeTransferData, isLoading } = useTransferData(
+    originTxHash,
+    isEdgenToBsc && isVisible,
+  );
 
   const token = tryFindToken(warpCore, origin, originTokenAddressOrDenom);
+
+  // For Edgen to BSC transfers, show a custom status icon based on bridge data
+  const getStatusIcon = () => {
+    if (isEdgenToBsc) {
+      // Check if bridgeTransferData is null (Indicates that the transfer hasn't been recorded on the backend yet)
+      if (bridgeTransferData === null) {
+        return null;
+      }
+      if (bridgeTransferData) {
+        // Use custom icons based on bridge transfer status
+        switch (bridgeTransferData?.status) {
+          case 'distributed':
+            return getIconByTransferStatus(TransferStatus.ConfirmedTransfer);
+          case 'pending':
+            return null; // Will show spinner
+          case 'failed':
+            return getIconByTransferStatus(TransferStatus.Failed);
+          default:
+            return null;
+        }
+      }
+    }
+
+    // Use default status icon for normal transfers
+    return STATUSES_WITH_ICON.includes(status) ? getIconByTransferStatus(status) : null;
+  };
+
+  const statusIcon = getStatusIcon();
 
   return (
     <button key={timestamp} onClick={onClick} className={`${styles.btn} justify-between py-3`}>
@@ -195,15 +245,22 @@ function TransferSummary({
               <span className="text-[12px] font-[500] text-[#707997]">
                 {` to ${getChainDisplayName(multiProvider, destination, true)}`}
               </span>
+              {isEdgenToBsc && (
+                <span className="ml-1 rounded-sm bg-blue-500 bg-opacity-20 px-1 py-0.5 text-[10px] font-medium text-blue-300">
+                  Feeless
+                </span>
+              )}
             </div>
           </div>
         </div>
       </div>
       <div className="flex h-5 w-5">
-        {STATUSES_WITH_ICON.includes(status) ? (
-          <Image src={getIconByTransferStatus(status)} width={25} height={25} alt="" />
+        {isLoading || (!statusIcon && isEdgenToBsc) ? (
+          <SpinnerIcon color="white" className="-ml-1 mr-3 h-6 w-6" />
+        ) : statusIcon ? (
+          <Image src={statusIcon} width={25} height={25} alt="" />
         ) : (
-          <SpinnerIcon className="-ml-1 mr-3 h-5 w-5" />
+          <SpinnerIcon color="white" className="-ml-1 mr-3 h-6 w-6" />
         )}
       </div>
     </button>
