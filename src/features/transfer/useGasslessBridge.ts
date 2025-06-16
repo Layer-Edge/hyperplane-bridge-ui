@@ -18,7 +18,7 @@ import { getTokenByIndex, useWarpCore } from '../tokens/hooks';
 import { TransferFormValues, TransferStatus } from './types';
 import { getEthersSigner } from './useEthersSigner';
 
-const GASLESS_BRIDGE_ADDRESS = '0xaA713C497e491e615283b9B127f0390839611287';
+const GASLESS_BRIDGE_ADDRESS = '0xDd9aD0F4cE629B53419545480021f141DEfD16A1';
 const CHAIN_MISMATCH_ERROR = 'ChainMismatchError';
 
 // Visually, we have used the term "feeless" instead of "gasless" for our users
@@ -105,7 +105,7 @@ export function useGaslessBridge(onDone?: () => void) {
           to: GASLESS_BRIDGE_ADDRESS,
           value: weiAmount,
           // Set gasLimit explicitly to ensure transaction doesn't fail due to estimation issues
-          gasLimit: 21000, // Standard gas limit for a simple transfer
+          gasLimit: 30000, // Standard gas limit for a simple transfer
         };
 
         // Send the transaction using ethers signer
