@@ -68,26 +68,25 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.ya?ml$/,
-      use: 'yaml-loader',
-    });
+  turbopack: {
+    rules: { '*.{yaml,yml}': { loaders: [require.resolve('yaml-loader')], as: 'json' } },
+  },
+  webpack(config, { isServer, dev }) {
+    // Skip Webpack configuration when using Turbopack in development
+    if (dev && process.env.TURBOPACK) {
+      return config;
+    }
+
+    config.module.rules.push({ test: /\.ya?ml$/, use: 'yaml-loader' });
+
     return config;
   },
 
   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: securityHeaders,
-      },
-    ];
+    return [{ source: '/(.*)', headers: securityHeaders }];
   },
 
-  env: {
-    NEXT_PUBLIC_VERSION: version,
-  },
+  env: { NEXT_PUBLIC_VERSION: version },
 
   reactStrictMode: true,
 };

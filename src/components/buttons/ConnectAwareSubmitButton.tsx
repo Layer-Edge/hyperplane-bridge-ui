@@ -41,7 +41,7 @@ export function ConnectAwareSubmitButton<FormValues = any>({ chainName, text, cl
 
   return (
     <SolidButton type={type} color={color} onClick={onClick} className={classes}>
-      {content}
+      <div className="z-1 relative">{content}</div>
     </SolidButton>
   );
 }

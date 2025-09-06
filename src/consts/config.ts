@@ -7,7 +7,7 @@ const version = process?.env?.NEXT_PUBLIC_VERSION || '0.0.0';
 const registryUrl = process?.env?.NEXT_PUBLIC_REGISTRY_URL || undefined;
 const registryBranch = process?.env?.NEXT_PUBLIC_REGISTRY_BRANCH || undefined;
 const registryProxyUrl = process?.env?.NEXT_PUBLIC_GITHUB_PROXY || 'https://proxy.hyperlane.xyz';
-const walletConnectProjectId = process?.env?.NEXT_PUBLIC_WALLET_CONNECT_ID || '';
+const walletConnectProjectId = 'a9972f6bc128e037dc81f22a1e14e6d9';
 const transferBlacklist = process?.env?.NEXT_PUBLIC_TRANSFER_BLACKLIST || '';
 const chainWalletWhitelists = JSON.parse(process?.env?.NEXT_PUBLIC_CHAIN_WALLET_WHITELISTS || '{}');
 const rpcOverrides = process?.env?.NEXT_PUBLIC_RPC_OVERRIDES || '';
@@ -38,8 +38,9 @@ export const config: Config = Object.freeze({
   addressBlacklist: ADDRESS_BLACKLIST.map((address) => address.toLowerCase()),
   chainWalletWhitelists,
   enableExplorerLink: false,
-  defaultOriginChain: undefined,
-  defaultDestinationChain: undefined,
+  // Set default chains to ones that actually exist in your chains.ts
+  defaultOriginChain: 'ethereum', // or 'bsctestnet' or 'edgentestnet'
+  defaultDestinationChain: 'edgenchain', // or 'edgentestnet' or 'basesepolia'
   isDevMode,
   registryUrl,
   registryBranch,

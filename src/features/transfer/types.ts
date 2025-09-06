@@ -37,4 +37,22 @@ export interface TransferContext {
   originTxHash?: string;
   msgId?: string;
   timestamp: number;
+  isGasless?: boolean;
+}
+
+// Enhanced transfer completion stages
+export enum TransferCompletionStage {
+  INITIATED = 'initiated',
+  TRANSACTION_SENT = 'transaction_sent',
+  HYPERLANE_PROCESSING = 'hyperlane_processing',
+  FUNDS_RECEIVED = 'funds_received',
+  COMPLETED = 'completed',
+}
+
+// Progress tracking interface
+export interface TransferProgress {
+  stage: TransferCompletionStage;
+  percentage: number;
+  estimatedTimeRemaining?: number; // in seconds
+  message: string;
 }

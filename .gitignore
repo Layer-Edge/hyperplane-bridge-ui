@@ -4,7 +4,7 @@
 .pnp.js
 cache/
 .yarn/install-state.gz
-
+.turbo
 # testing
 /coverage
 coverage.json

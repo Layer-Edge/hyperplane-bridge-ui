@@ -11,10 +11,10 @@ type Props = {
   label: string;
   onChange?: (id: ChainName, fieldName: string) => void;
   disabled?: boolean;
-  customListItemField: ChainSearchMenuProps['customListItemField'];
+  customListItemField?: ChainSearchMenuProps['customListItemField'];
 };
 
-export function ChainSelectField({ name, label, onChange, disabled, customListItemField }: Props) {
+export function ChainSelectField({ name, label, onChange, disabled }: Props) {
   const [field, , helpers] = useField<ChainName>(name);
   const { setFieldValue } = useFormikContext<TransferFormValues>();
 
@@ -47,26 +47,26 @@ export function ChainSelectField({ name, label, onChange, disabled, customListIt
             <ChainLogo chainName={field.value} size={32} />
           </div>
           <div className="flex flex-col items-start gap-1">
-            <label htmlFor={name} className="text-xs text-gray-600">
+            <label htmlFor={name} className="text-[12px] text-[#707997]">
               {label}
             </label>
-            {displayName}
+            <span className="text-[18px] font-semibold text-white">{displayName}</span>
           </div>
         </div>
-        <ChevronIcon width={12} height={8} direction="s" />
+        {!disabled && <ChevronIcon width={12} height={8} direction="s" color="#fff" />}
       </button>
       <ChainSelectListModal
         isOpen={isModalOpen}
         close={() => setIsModalOpen(false)}
         onSelect={handleChange}
-        customListItemField={customListItemField}
+        // customListItemField={customListItemField}
       />
     </div>
   );
 }
 
 const styles = {
-  base: 'px-2 py-1.5 w-full flex items-center justify-between text-sm bg-white rounded-lg border border-primary-300 outline-none transition-colors duration-500',
-  enabled: 'hover:bg-gray-100 active:scale-95 focus:border-primary-500',
-  disabled: 'bg-gray-150 cursor-default',
+  base: 'bg-[#DBE2FA08] px-[16px] py-[16px] w-full flex items-center justify-between text-sm rounded-[24px] outline-none transition-colors duration-500',
+  enabled: 'active:scale-95',
+  disabled: 'cursor-default',
 };

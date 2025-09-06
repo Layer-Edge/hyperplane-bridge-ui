@@ -1,7 +1,25 @@
+import {
+  ChainMap,
+  CoreAddresses,
+  MultiProtocolCore,
+  MultiProtocolProvider,
+  ProviderType,
+  TypedTransactionReceipt,
+  WarpCore,
+} from '@hyperlane-xyz/sdk';
+import { errorToString, ProtocolType, toWei } from '@hyperlane-xyz/utils';
+import { AccountInfo, getAccountAddressAndPubKey } from '@hyperlane-xyz/widgets';
 import ConfirmedIcon from '../../images/icons/confirmed-icon.svg';
 import DeliveredIcon from '../../images/icons/delivered-icon.svg';
 import ErrorCircleIcon from '../../images/icons/error-circle.svg';
-import { FinalTransferStatuses, SentTransferStatuses, TransferStatus } from './types';
+import { logger } from '../../utils/logger';
+import { getTokenByIndex } from '../tokens/hooks';
+import {
+  FinalTransferStatuses,
+  SentTransferStatuses,
+  TransferFormValues,
+  TransferStatus,
+} from './types';
 
 export function getTransferStatusLabel(
   status: TransferStatus,
@@ -68,16 +86,6 @@ export function getIconByTransferStatus(status: TransferStatus) {
   }
 }
 
-import {
-  ChainMap,
-  CoreAddresses,
-  MultiProtocolCore,
-  MultiProtocolProvider,
-  ProviderType,
-  TypedTransactionReceipt,
-} from '@hyperlane-xyz/sdk';
-import { logger } from '../../utils/logger';
-
 export function tryGetMsgIdFromTransferReceipt(
   multiProvider: MultiProtocolProvider,
   origin: ChainName,
@@ -123,5 +131,76 @@ export function tryGetMsgIdFromTransferReceipt(
   } catch (error) {
     logger.error('Could not get msgId from transfer receipt', error);
     return undefined;
+  }
+}
+
+// Check if origin route is EDGEN and destination is bsc
+export function checkIsEdgenToBsc(origin: string, destination: string): boolean {
+  const EDGEN = ['edgenchain', 'edgentestnet'];
+  const BSC = ['bsc', 'bsctestnet'];
+
+  return EDGEN.includes(origin) && BSC.includes(destination);
+}
+
+/**
+ * Maps the bridge API status to our app's TransferStatus
+ * @param apiStatus The status from the bridge API
+ * @returns Corresponding TransferStatus
+ */
+export function mapBridgeStatusToTransferStatus(apiStatus: string): TransferStatus {
+  switch (apiStatus) {
+    case 'distributed':
+      return TransferStatus.Delivered;
+    case 'pending':
+      return TransferStatus.ConfirmedTransfer;
+    case 'failed':
+      return TransferStatus.Failed;
+    default:
+      return TransferStatus.ConfirmedTransfer;
+  }
+}
+
+const insufficientFundsErrMsg = /insufficient.[funds|lamports]/i;
+const emptyAccountErrMsg = /AccountNotFound/i;
+
+export async function validateForm(
+  warpCore: WarpCore,
+  values: TransferFormValues,
+  accounts: Record<ProtocolType, AccountInfo>,
+) {
+  try {
+    const { origin, destination, tokenIndex, amount, recipient } = values;
+    const token = getTokenByIndex(warpCore, tokenIndex);
+    if (!token) return { token: 'Token is required' };
+    const amountWei = toWei(amount, token.decimals);
+    const { address, publicKey: senderPubKey } = getAccountAddressAndPubKey(
+      warpCore.multiProvider,
+      origin,
+      accounts,
+    );
+
+    const isEdgenToBsc = checkIsEdgenToBsc(origin, destination);
+    const result = await warpCore.validateTransfer({
+      originTokenAmount: token.amount(amountWei),
+      destination,
+      recipient,
+      sender: address || '',
+      senderPubKey: await senderPubKey,
+    });
+    if (isEdgenToBsc) {
+      if (result?.amount === 'Invalid amount' || result?.amount === 'Insufficient balance') {
+        return result;
+      }
+      return null;
+    }
+    return result;
+  } catch (error: any) {
+    logger.error('Error validating form', error);
+    let errorMsg = errorToString(error, 40);
+    const fullError = `${errorMsg} ${error.message}`;
+    if (insufficientFundsErrMsg.test(fullError) || emptyAccountErrMsg.test(fullError)) {
+      errorMsg = 'Insufficient funds for gas fees';
+    }
+    return { form: errorMsg };
   }
 }

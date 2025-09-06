@@ -7,7 +7,7 @@ module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     fontFamily: {
-      sans: ['var(--font-main)'],
+      sans: ['Satoshi', 'sans-serif'],
       serif: ['Garamond', 'serif'],
       mono: ['Courier New', 'monospace'],
     },
@@ -20,14 +20,14 @@ module.exports = {
       colors: {
         black: '#010101',
         white: '#ffffff',
-        gray: { ...defaultColors.gray, '150': '#EBEDF0', '250': '#404040', '350': '#6B6B6B' },
+        gray: { ...defaultColors.gray, 150: '#EBEDF0', 250: '#404040', 350: '#6B6B6B' },
         primary: {
           50: '#E6EDF9',
           100: '#CDDCF4',
           200: '#A7C2EC',
           300: '#82A8E4',
           400: '#5385D2',
-          500: '#2764c1',
+          500: '#050917',
           600: '#1D4685',
           700: '#162A4A',
           800: '#11213B',
@@ -102,6 +102,13 @@ module.exports = {
       },
       maxWidth: {
         'xl-1': '39.5rem',
+      },
+      backgroundImage: {
+        'custom-gradient': `
+          linear-gradient(0deg, rgba(5, 9, 23, 0.3), rgba(5, 9, 23, 0.3)),
+          linear-gradient(0deg, rgba(219, 226, 250, 0.05), rgba(219, 226, 250, 0.05)),
+          radial-gradient(94.48% 48.57% at 50% 0%, rgba(219, 226, 250, 0.1) 0.79%, rgba(255, 255, 255, 0) 100%)
+        `,
       },
     },
   },

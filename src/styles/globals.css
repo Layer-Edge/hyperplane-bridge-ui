@@ -2,6 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: 'Satoshi', system-ui, sans-serif;
+  }
+}
+
+/**
+* @license
+*
+* Font Family: Satoshi
+* Designed by: Deni Anggara
+* URL: https://www.fontshare.com/fonts/satoshi
+* © 2025 Indian Type Foundry
+*
+* Satoshi Light 
+* Satoshi LightItalic 
+* Satoshi Regular 
+* Satoshi Italic 
+* Satoshi Medium 
+* Satoshi MediumItalic 
+* Satoshi Bold 
+* Satoshi BoldItalic 
+* Satoshi Black 
+* Satoshi BlackItalic 
+* Satoshi Variable (Variable font)
+* Satoshi VariableItalic (Variable font)
+
+
+
+/**
+* This is a variable font
+* You can control variable axes as shown below:
+* font-variation-settings: wght 900.0;
+*
+* available axes:
+'wght' (range from 300.0 to 900.0
+*/
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('../fonts/Satoshi-Variable.woff2') format('woff2'),
+    url('../fonts/Satoshi-Variable.woff') format('woff'),
+    url('../fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+/**
+* This is a variable font
+* You can control variable axes as shown below:
+* font-variation-settings: wght 900.0;
+*
+* available axes:
+'wght' (range from 300.0 to 900.0
+*/
+@font-face {
+  font-family: 'Satoshi-VariableItalic';
+  src:
+    url('../fonts/Satoshi-VariableItalic.woff2') format('woff2'),
+    url('../fonts/Satoshi-VariableItalic.woff') format('woff'),
+    url('../fonts/Satoshi-VariableItalic.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: italic;
+}
+
 /*
 Normalization
 =============
@@ -72,7 +138,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-/* clears the ‘X’ from Internet Explorer */
+/* clears the 'X' from Internet Explorer */
 input[type='search']::-ms-clear {
   display: none;
   width: 0;
@@ -84,7 +150,7 @@ input[type='search']::-ms-reveal {
   height: 0;
 }
 
-/* clears the ‘X’ from Chrome */
+/* clears the 'X' from Chrome */
 input[type='search']::-webkit-search-decoration,
 input[type='search']::-webkit-search-cancel-button,
 input[type='search']::-webkit-search-results-button,
@@ -209,4 +275,141 @@ Fixes for cosmos chain selection modal
 */
 div[data-floating-ui-portal] > div {
   z-index: 10000;
+}
+.gradient-border-button::before {
+  content: '';
+  position: absolute;
+  border-radius: 50px;
+  height: 100%;
+  width: 100%;
+  background: #fff;
+  left: 0px;
+  right: 2px;
+  bottom: 2px;
+}
+
+.gradient-border-button {
+  position: relative;
+  background: #dbe2fa;
+  font-size: 16px;
+  color: black;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    #a14949 0%,
+    #f2728b 16%,
+    #fde986 33%,
+    #d5ffdf 50%,
+    #5dc8e9 66%,
+    #214ac0 83%,
+    #9c50b5 100%
+  );
+}
+
+.modal-conainer {
+  background: linear-gradient(
+      0deg,
+      var(--Black-30, rgba(5, 9, 23, 0.3)),
+      var(--Black-30, rgba(5, 9, 23, 0.3))
+    ),
+    linear-gradient(
+      0deg,
+      var(--White-5, rgba(219, 226, 250, 0.05)),
+      var(--White-5, rgba(219, 226, 250, 0.05))
+    );
+
+  border: 1px solid var(--White-5, #dbe2fa0d);
+  border-radius: 32px;
+}
+
+.dialog-container > div {
+  background: #050917bf;
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0px 6px 24px 0px #dbe2fa05 inset,
+    0px 16px 40px 0px #00000040,
+    0px 0px 0px 1px #00000029;
+}
+.search-menu-container .htw-text-sm {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+}
+.search-menu-container button {
+  border: none !important;
+}
+/* .search-menu-container button {
+  &:last-child {
+    display: none;
+  }
+  
+} */
+.sidebar-container {
+  background: #050917;
+  border: 1px solid var(--White-3, #dbe2fa08);
+  border-radius: 32px;
+}
+.account-button {
+  background: linear-gradient(
+      0deg,
+      var(--Black-30, rgba(5, 9, 23, 0.3)),
+      var(--Black-30, rgba(5, 9, 23, 0.3))
+    ),
+    linear-gradient(
+      0deg,
+      var(--White-5, rgba(219, 226, 250, 0.05)),
+      var(--White-5, rgba(219, 226, 250, 0.05))
+    );
+  border: 1px solid var(--White-5, #dbe2fa0d);
+  border-radius: 100px;
+  cursor: pointer;
+  display: flex;
+  padding-right: 20px;
+}
+.button-inner {
+  background: #dbe2fa08;
+  border: 1px solid #dbe2fa08;
+  border-radius: 60px;
+  padding: 8px 23px;
+  color: #dbe2fa;
+  font-size: 16px;
+  font-weight: 500;
+  margin-right: 15px;
+}
+.gradient-text {
+  background: linear-gradient(0deg, #ffffff, #ffffff),
+    linear-gradient(90deg, #707997 0%, #dbe2fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tooltipFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+[data-radix-tooltip-content-wrapper] {
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+[data-state='closed'] [data-radix-tooltip-content-wrapper] {
+  animation: tooltipFadeOut 0.2s ease-in;
 }
